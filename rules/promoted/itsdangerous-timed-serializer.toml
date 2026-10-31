@@ -1,0 +1,26 @@
+id = "itsdangerous-timed-serializer"
+package = "itsdangerous"
+error_class = "import_error"
+error_contains = ["TimedJSONWebSignatureSerializer"]
+
+[[replacements]]
+path_glob = "src/**/*.py"
+old = '''from itsdangerous import TimedJSONWebSignatureSerializer'''
+new = '''from itsdangerous import URLSafeTimedSerializer'''
+
+[[replacements]]
+path_glob = "src/**/*.py"
+old = '''    serializer = TimedJSONWebSignatureSerializer(secret, expires_in=3600)
+    token = serializer.dumps(payload)
+    if isinstance(token, bytes):
+        return token.decode()
+    return token'''
+new = '''    serializer = URLSafeTimedSerializer(secret)
+    return serializer.dumps(payload)'''
+
+[[replacements]]
+path_glob = "src/**/*.py"
+old = '''    serializer = TimedJSONWebSignatureSerializer(secret, expires_in=3600)
+    return serializer.loads(token)'''
+new = '''    serializer = URLSafeTimedSerializer(secret)
+    return serializer.loads(token, max_age=3600)'''

@@ -1,0 +1,1 @@
+"""Query escaping helper."""

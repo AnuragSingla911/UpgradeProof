@@ -1,0 +1,13 @@
+--- a/requirements.txt
++++ b/requirements.txt
+@@ -1 +1 @@
+-urllib3==1.26.20
++urllib3==2.2.3
+--- a/src/retryctx/gateway.py
++++ b/src/retryctx/gateway.py
+@@ -2,4 +2,4 @@
+ 
+ 
+ def build_gateway_retry() -> Retry:
+-    return Retry(total=3, method_whitelist=["GET", "HEAD"], status_forcelist=[503])
++    return Retry(total=3, allowed_methods=["GET", "HEAD"], status_forcelist=[503])

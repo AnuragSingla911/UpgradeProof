@@ -1,0 +1,1054 @@
+{
+  "project": "UpgradeProof",
+  "version": "0.1.0",
+  "generated_at": "2026-10-31T08:12:01.782566+00:00",
+  "generated_at_asia_calcutta": "2026-10-31 13:42 Asia/Calcutta",
+  "python": "3.12.3",
+  "elapsed_seconds": 54.356,
+  "limitation": "These fixtures were written for this repository. Promoted rules were authored with the cases, so the repair rate is a feasibility result, not an estimate for unseen upgrades. A passing oracle is not universal compatibility.",
+  "rows": [
+    {
+      "case_id": "urllib3-retry",
+      "title": "urllib3 2 removes Retry(method_whitelist=...)",
+      "mode": "rules",
+      "verdict": "verified_repair",
+      "reason": "public tests and hidden evaluation checks passed",
+      "failure_class": "unexpected_keyword",
+      "repair_source": "rule:urllib3-retry-method-whitelist",
+      "attempts": 1,
+      "model_calls": 0,
+      "wall_clock_seconds": 5.032,
+      "setup_seconds": 4.321,
+      "estimated_cost_usd": 0.0,
+      "patch": "--- a/requirements.txt\n+++ b/requirements.txt\n@@ -1 +1 @@\n-urllib3==1.26.20\n+urllib3==2.2.3\n--- a/src/retryctx/client.py\n+++ b/src/retryctx/client.py\n@@ -2,4 +2,4 @@\n \n \n def build_retry() -> Retry:\n-    return Retry(total=3, method_whitelist=[\"GET\", \"HEAD\"], status_forcelist=[503])\n+    return Retry(total=3, allowed_methods=[\"GET\", \"HEAD\"], status_forcelist=[503])\n",
+      "rejections": [],
+      "baseline_passed": true,
+      "upgrade_passed": true,
+      "public_tests_passed": true,
+      "oracle_passed": true,
+      "timeline": [
+        {
+          "state": "baseline",
+          "ok": true,
+          "timed_out": false,
+          "output": ".                                                                        [100%]\n=============================== warnings summary ===============================\ntests/test_client.py::test_allows_get_and_head\n  /tmp/upgradeproof-urllib3-retry-fobmx251/src/retryctx/client.py:5: DeprecationWarning: Using 'method_whitelist' with Retry is deprecated and will be removed in v2.0. Use 'allowed_methods' instead\n    return Retry(total=3, method_whitelist=[\"GET\", \"HEAD\"], status_forcelist=[503])\n\n-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html\n1 passed, 1 warning in 0.04s"
+        },
+        {
+          "state": "upgrade",
+          "ok": true,
+          "timed_out": false,
+          "output": "t (line 1))\n  Using cached urllib3-2.2.3-py3-none-any.whl.metadata (6.5 kB)\nRequirement already satisfied: iniconfig in ./.venv/lib/python3.12/site-packages (from pytest==8.3.5) (2.3.1)\nRequirement already satisfied: packaging in ./.venv/lib/python3.12/site-packages (from pytest==8.3.5) (26.3)\nRequirement already satisfied: pluggy<2,>=1.5 in ./.venv/lib/python3.12/site-packages (from pytest==8.3.5) (1.7.0)\nUsing cached urllib3-2.2.3-py3-none-any.whl (126 kB)\nInstalling collected packages: urllib3\n  Attempting uninstall: urllib3\n    Found existing installation: urllib3 1.26.20\n    Uninstalling urllib3-1.26.20:\n      Successfully uninstalled urllib3-1.26.20\nSuccessfully installed urllib3-2.2.3"
+        },
+        {
+          "state": "retest",
+          "ok": false,
+          "failure_class": "unexpected_keyword",
+          "output": "                        [100%]\n=================================== FAILURES ===================================\n___________________________ test_allows_get_and_head ___________________________\ntests/test_client.py:5: in test_allows_get_and_head\n    assert set(build_retry().allowed_methods) == {\"GET\", \"HEAD\"}\nsrc/retryctx/client.py:5: in build_retry\n    return Retry(total=3, method_whitelist=[\"GET\", \"HEAD\"], status_forcelist=[503])\nE   TypeError: Retry.__init__() got an unexpected keyword argument 'method_whitelist'\n=========================== short test summary info ============================\nFAILED tests/test_client.py::test_allows_get_and_head - TypeError: Retry.__in...\n1 failed in 0.07s"
+        },
+        {
+          "state": "propose",
+          "attempt": 1,
+          "source": "rule:urllib3-retry-method-whitelist",
+          "abstain": false,
+          "model_call": false
+        },
+        {
+          "state": "apply",
+          "attempt": 1,
+          "ok": true
+        },
+        {
+          "state": "oracle",
+          "attempt": 1,
+          "ok": true
+        }
+      ],
+      "limitation": "Passing tests are evidence only for the behaviors those tests execute. They do not prove the project is compatible with the new dependency in every environment.",
+      "expected_verdict": "verified_repair",
+      "expectation_met": true,
+      "cohort": "repair"
+    },
+    {
+      "case_id": "urllib3-retry",
+      "title": "urllib3 2 removes Retry(method_whitelist=...)",
+      "mode": "skill",
+      "verdict": "verified_repair",
+      "reason": "public tests and hidden evaluation checks passed",
+      "failure_class": "unexpected_keyword",
+      "repair_source": "skill:urllib3-retry-method-whitelist",
+      "attempts": 1,
+      "model_calls": 0,
+      "wall_clock_seconds": 5.029,
+      "setup_seconds": 4.321,
+      "estimated_cost_usd": 0.0,
+      "patch": "--- a/requirements.txt\n+++ b/requirements.txt\n@@ -1 +1 @@\n-urllib3==1.26.20\n+urllib3==2.2.3\n--- a/src/retryctx/client.py\n+++ b/src/retryctx/client.py\n@@ -2,4 +2,4 @@\n \n \n def build_retry() -> Retry:\n-    return Retry(total=3, method_whitelist=[\"GET\", \"HEAD\"], status_forcelist=[503])\n+    return Retry(total=3, allowed_methods=[\"GET\", \"HEAD\"], status_forcelist=[503])\n",
+      "rejections": [],
+      "baseline_passed": true,
+      "upgrade_passed": true,
+      "public_tests_passed": true,
+      "oracle_passed": true,
+      "timeline": [
+        {
+          "state": "baseline",
+          "ok": true,
+          "timed_out": false,
+          "output": ".                                                                        [100%]\n=============================== warnings summary ===============================\ntests/test_client.py::test_allows_get_and_head\n  /tmp/upgradeproof-urllib3-retry-fobmx251/src/retryctx/client.py:5: DeprecationWarning: Using 'method_whitelist' with Retry is deprecated and will be removed in v2.0. Use 'allowed_methods' instead\n    return Retry(total=3, method_whitelist=[\"GET\", \"HEAD\"], status_forcelist=[503])\n\n-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html\n1 passed, 1 warning in 0.04s"
+        },
+        {
+          "state": "upgrade",
+          "ok": true,
+          "timed_out": false,
+          "output": "t (line 1))\n  Using cached urllib3-2.2.3-py3-none-any.whl.metadata (6.5 kB)\nRequirement already satisfied: iniconfig in ./.venv/lib/python3.12/site-packages (from pytest==8.3.5) (2.3.1)\nRequirement already satisfied: packaging in ./.venv/lib/python3.12/site-packages (from pytest==8.3.5) (26.3)\nRequirement already satisfied: pluggy<2,>=1.5 in ./.venv/lib/python3.12/site-packages (from pytest==8.3.5) (1.7.0)\nUsing cached urllib3-2.2.3-py3-none-any.whl (126 kB)\nInstalling collected packages: urllib3\n  Attempting uninstall: urllib3\n    Found existing installation: urllib3 1.26.20\n    Uninstalling urllib3-1.26.20:\n      Successfully uninstalled urllib3-1.26.20\nSuccessfully installed urllib3-2.2.3"
+        },
+        {
+          "state": "retest",
+          "ok": false,
+          "failure_class": "unexpected_keyword",
+          "output": "                        [100%]\n=================================== FAILURES ===================================\n___________________________ test_allows_get_and_head ___________________________\ntests/test_client.py:5: in test_allows_get_and_head\n    assert set(build_retry().allowed_methods) == {\"GET\", \"HEAD\"}\nsrc/retryctx/client.py:5: in build_retry\n    return Retry(total=3, method_whitelist=[\"GET\", \"HEAD\"], status_forcelist=[503])\nE   TypeError: Retry.__init__() got an unexpected keyword argument 'method_whitelist'\n=========================== short test summary info ============================\nFAILED tests/test_client.py::test_allows_get_and_head - TypeError: Retry.__in...\n1 failed in 0.07s"
+        },
+        {
+          "state": "propose",
+          "attempt": 1,
+          "source": "skill:urllib3-retry-method-whitelist",
+          "abstain": false,
+          "model_call": false
+        },
+        {
+          "state": "apply",
+          "attempt": 1,
+          "ok": true
+        },
+        {
+          "state": "oracle",
+          "attempt": 1,
+          "ok": true
+        }
+      ],
+      "limitation": "Passing tests are evidence only for the behaviors those tests execute. They do not prove the project is compatible with the new dependency in every environment.",
+      "expected_verdict": "verified_repair",
+      "expectation_met": true,
+      "cohort": "repair"
+    },
+    {
+      "case_id": "werkzeug-url-quote",
+      "title": "Werkzeug 3 removes werkzeug.urls.url_quote",
+      "mode": "rules",
+      "verdict": "verified_repair",
+      "reason": "public tests and hidden evaluation checks passed",
+      "failure_class": "import_error",
+      "repair_source": "rule:werkzeug-url-quote",
+      "attempts": 1,
+      "model_calls": 0,
+      "wall_clock_seconds": 5.108,
+      "setup_seconds": 4.471,
+      "estimated_cost_usd": 0.0,
+      "patch": "--- a/requirements.txt\n+++ b/requirements.txt\n@@ -1 +1 @@\n-werkzeug==2.3.8\n+werkzeug==3.0.6\n--- a/src/queryesc/encode.py\n+++ b/src/queryesc/encode.py\n@@ -1,5 +1,5 @@\n-from werkzeug.urls import url_quote\n+from urllib.parse import quote\n \n \n def encode_query_value(value: str) -> str:\n-    return url_quote(value)\n+    return quote(value, safe=\"/:!$'()*+,;\")\n",
+      "rejections": [],
+      "baseline_passed": true,
+      "upgrade_passed": true,
+      "public_tests_passed": true,
+      "oracle_passed": true,
+      "timeline": [
+        {
+          "state": "baseline",
+          "ok": true,
+          "timed_out": false,
+          "output": ".                                                                        [100%]\n=============================== warnings summary ===============================\ntests/test_encode.py::test_space_and_slash\ntests/test_encode.py::test_space_and_slash\n  /tmp/upgradeproof-werkzeug-url-quote-l89ek77g/src/queryesc/encode.py:5: DeprecationWarning: 'werkzeug.urls.url_quote' is deprecated and will be removed in Werkzeug 3.0. Use 'urllib.parse.quote' instead.\n    return url_quote(value)\n\n-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html\n1 passed, 2 warnings in 0.04s"
+        },
+        {
+          "state": "upgrade",
+          "ok": true,
+          "timed_out": false,
+          "output": "kages (from pytest==8.3.5) (2.3.1)\nRequirement already satisfied: packaging in ./.venv/lib/python3.12/site-packages (from pytest==8.3.5) (26.3)\nRequirement already satisfied: pluggy<2,>=1.5 in ./.venv/lib/python3.12/site-packages (from pytest==8.3.5) (1.7.0)\nRequirement already satisfied: MarkupSafe>=2.1.1 in ./.venv/lib/python3.12/site-packages (from werkzeug==3.0.6->-r requirements.txt (line 1)) (3.0.4)\nUsing cached werkzeug-3.0.6-py3-none-any.whl (227 kB)\nInstalling collected packages: werkzeug\n  Attempting uninstall: werkzeug\n    Found existing installation: Werkzeug 2.3.8\n    Uninstalling Werkzeug-2.3.8:\n      Successfully uninstalled Werkzeug-2.3.8\nSuccessfully installed werkzeug-3.0.6"
+        },
+        {
+          "state": "retest",
+          "ok": false,
+          "failure_class": "import_error",
+          "output": "ve valid Python names.\nTraceback:\n/usr/lib/python3.12/importlib/__init__.py:90: in import_module\n    return _bootstrap._gcd_import(name[level:], package, level)\ntests/test_encode.py:1: in <module>\n    from queryesc.encode import encode_query_value\nsrc/queryesc/encode.py:1: in <module>\n    from werkzeug.urls import url_quote\nE   ImportError: cannot import name 'url_quote' from 'werkzeug.urls' (/tmp/upgradeproof-werkzeug-url-quote-l89ek77g/.venv/lib/python3.12/site-packages/werkzeug/urls.py)\n=========================== short test summary info ============================\nERROR tests/test_encode.py\n!!!!!!!!!!!!!!!!!!!! Interrupted: 1 error during collection !!!!!!!!!!!!!!!!!!!!\n1 error in 0.08s"
+        },
+        {
+          "state": "propose",
+          "attempt": 1,
+          "source": "rule:werkzeug-url-quote",
+          "abstain": false,
+          "model_call": false
+        },
+        {
+          "state": "apply",
+          "attempt": 1,
+          "ok": true
+        },
+        {
+          "state": "oracle",
+          "attempt": 1,
+          "ok": true
+        }
+      ],
+      "limitation": "Passing tests are evidence only for the behaviors those tests execute. They do not prove the project is compatible with the new dependency in every environment.",
+      "expected_verdict": "verified_repair",
+      "expectation_met": true,
+      "cohort": "repair"
+    },
+    {
+      "case_id": "werkzeug-url-quote",
+      "title": "Werkzeug 3 removes werkzeug.urls.url_quote",
+      "mode": "skill",
+      "verdict": "verified_repair",
+      "reason": "public tests and hidden evaluation checks passed",
+      "failure_class": "import_error",
+      "repair_source": "skill:werkzeug-url-quote",
+      "attempts": 1,
+      "model_calls": 0,
+      "wall_clock_seconds": 5.048,
+      "setup_seconds": 4.471,
+      "estimated_cost_usd": 0.0,
+      "patch": "--- a/requirements.txt\n+++ b/requirements.txt\n@@ -1 +1 @@\n-werkzeug==2.3.8\n+werkzeug==3.0.6\n--- a/src/queryesc/encode.py\n+++ b/src/queryesc/encode.py\n@@ -1,5 +1,5 @@\n-from werkzeug.urls import url_quote\n+from urllib.parse import quote\n \n \n def encode_query_value(value: str) -> str:\n-    return url_quote(value)\n+    return quote(value, safe=\"/:!$'()*+,;\")\n",
+      "rejections": [],
+      "baseline_passed": true,
+      "upgrade_passed": true,
+      "public_tests_passed": true,
+      "oracle_passed": true,
+      "timeline": [
+        {
+          "state": "baseline",
+          "ok": true,
+          "timed_out": false,
+          "output": ".                                                                        [100%]\n=============================== warnings summary ===============================\ntests/test_encode.py::test_space_and_slash\ntests/test_encode.py::test_space_and_slash\n  /tmp/upgradeproof-werkzeug-url-quote-l89ek77g/src/queryesc/encode.py:5: DeprecationWarning: 'werkzeug.urls.url_quote' is deprecated and will be removed in Werkzeug 3.0. Use 'urllib.parse.quote' instead.\n    return url_quote(value)\n\n-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html\n1 passed, 2 warnings in 0.04s"
+        },
+        {
+          "state": "upgrade",
+          "ok": true,
+          "timed_out": false,
+          "output": "kages (from pytest==8.3.5) (2.3.1)\nRequirement already satisfied: packaging in ./.venv/lib/python3.12/site-packages (from pytest==8.3.5) (26.3)\nRequirement already satisfied: pluggy<2,>=1.5 in ./.venv/lib/python3.12/site-packages (from pytest==8.3.5) (1.7.0)\nRequirement already satisfied: MarkupSafe>=2.1.1 in ./.venv/lib/python3.12/site-packages (from werkzeug==3.0.6->-r requirements.txt (line 1)) (3.0.4)\nUsing cached werkzeug-3.0.6-py3-none-any.whl (227 kB)\nInstalling collected packages: werkzeug\n  Attempting uninstall: werkzeug\n    Found existing installation: Werkzeug 2.3.8\n    Uninstalling Werkzeug-2.3.8:\n      Successfully uninstalled Werkzeug-2.3.8\nSuccessfully installed werkzeug-3.0.6"
+        },
+        {
+          "state": "retest",
+          "ok": false,
+          "failure_class": "import_error",
+          "output": "ve valid Python names.\nTraceback:\n/usr/lib/python3.12/importlib/__init__.py:90: in import_module\n    return _bootstrap._gcd_import(name[level:], package, level)\ntests/test_encode.py:1: in <module>\n    from queryesc.encode import encode_query_value\nsrc/queryesc/encode.py:1: in <module>\n    from werkzeug.urls import url_quote\nE   ImportError: cannot import name 'url_quote' from 'werkzeug.urls' (/tmp/upgradeproof-werkzeug-url-quote-l89ek77g/.venv/lib/python3.12/site-packages/werkzeug/urls.py)\n=========================== short test summary info ============================\nERROR tests/test_encode.py\n!!!!!!!!!!!!!!!!!!!! Interrupted: 1 error during collection !!!!!!!!!!!!!!!!!!!!\n1 error in 0.08s"
+        },
+        {
+          "state": "propose",
+          "attempt": 1,
+          "source": "skill:werkzeug-url-quote",
+          "abstain": false,
+          "model_call": false
+        },
+        {
+          "state": "apply",
+          "attempt": 1,
+          "ok": true
+        },
+        {
+          "state": "oracle",
+          "attempt": 1,
+          "ok": true
+        }
+      ],
+      "limitation": "Passing tests are evidence only for the behaviors those tests execute. They do not prove the project is compatible with the new dependency in every environment.",
+      "expected_verdict": "verified_repair",
+      "expectation_met": true,
+      "cohort": "repair"
+    },
+    {
+      "case_id": "importlib-entry-points",
+      "title": "importlib_metadata 8 drops the entry_points() dict interface",
+      "mode": "rules",
+      "verdict": "verified_repair",
+      "reason": "public tests and hidden evaluation checks passed",
+      "failure_class": "key_error",
+      "repair_source": "rule:importlib-entry-points",
+      "attempts": 1,
+      "model_calls": 0,
+      "wall_clock_seconds": 6.453,
+      "setup_seconds": 5.917,
+      "estimated_cost_usd": 0.0,
+      "patch": "--- a/requirements.txt\n+++ b/requirements.txt\n@@ -1 +1 @@\n-importlib-metadata==4.13.0\n+importlib-metadata==8.5.0\n--- a/src/plugdemo/loader.py\n+++ b/src/plugdemo/loader.py\n@@ -2,5 +2,5 @@\n \n \n def plugin_names() -> list[str]:\n-    selected = entry_points()[\"upgradeproof.plugins\"]\n+    selected = entry_points(group=\"upgradeproof.plugins\")\n     return sorted(entry.name for entry in selected)\n",
+      "rejections": [],
+      "baseline_passed": true,
+      "upgrade_passed": true,
+      "public_tests_passed": true,
+      "oracle_passed": true,
+      "timeline": [
+        {
+          "state": "baseline",
+          "ok": true,
+          "timed_out": false,
+          "output": ".                                                                        [100%]\n=============================== warnings summary ===============================\ntests/test_loader.py::test_lists_plugins\n  /tmp/upgradeproof-importlib-entry-points-wcfe1czp/src/plugdemo/loader.py:5: DeprecationWarning: SelectableGroups dict interface is deprecated. Use select.\n    selected = entry_points()[\"upgradeproof.plugins\"]\n\n-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html\n1 passed, 1 warning in 0.01s"
+        },
+        {
+          "state": "upgrade",
+          "ok": true,
+          "timed_out": false,
+          "output": " in ./.venv/lib/python3.12/site-packages (from pytest==8.3.5) (26.3)\nRequirement already satisfied: pluggy<2,>=1.5 in ./.venv/lib/python3.12/site-packages (from pytest==8.3.5) (1.7.0)\nRequirement already satisfied: zipp>=3.20 in ./.venv/lib/python3.12/site-packages (from importlib-metadata==8.5.0->-r requirements.txt (line 1)) (4.1.2)\nUsing cached importlib_metadata-8.5.0-py3-none-any.whl (26 kB)\nInstalling collected packages: importlib-metadata\n  Attempting uninstall: importlib-metadata\n    Found existing installation: importlib-metadata 4.13.0\n    Uninstalling importlib-metadata-4.13.0:\n      Successfully uninstalled importlib-metadata-4.13.0\nSuccessfully installed importlib-metadata-8.5.0"
+        },
+        {
+          "state": "retest",
+          "ok": false,
+          "failure_class": "key_error",
+          "output": "importlib_metadata/__init__.py:289: in __getitem__\n    return next(iter(self.select(name=name)))\nE   StopIteration\n\nDuring handling of the above exception, another exception occurred:\ntests/test_loader.py:5: in test_lists_plugins\n    assert plugin_names() == [\"alpha\", \"beta\"]\nsrc/plugdemo/loader.py:5: in plugin_names\n    selected = entry_points()[\"upgradeproof.plugins\"]\n.venv/lib/python3.12/site-packages/importlib_metadata/__init__.py:291: in __getitem__\n    raise KeyError(name)\nE   KeyError: 'upgradeproof.plugins'\n=========================== short test summary info ============================\nFAILED tests/test_loader.py::test_lists_plugins - KeyError: 'upgradeproof.plu...\n1 failed in 0.02s"
+        },
+        {
+          "state": "propose",
+          "attempt": 1,
+          "source": "rule:importlib-entry-points",
+          "abstain": false,
+          "model_call": false
+        },
+        {
+          "state": "apply",
+          "attempt": 1,
+          "ok": true
+        },
+        {
+          "state": "oracle",
+          "attempt": 1,
+          "ok": true
+        }
+      ],
+      "limitation": "Passing tests are evidence only for the behaviors those tests execute. They do not prove the project is compatible with the new dependency in every environment.",
+      "expected_verdict": "verified_repair",
+      "expectation_met": true,
+      "cohort": "repair"
+    },
+    {
+      "case_id": "importlib-entry-points",
+      "title": "importlib_metadata 8 drops the entry_points() dict interface",
+      "mode": "skill",
+      "verdict": "verified_repair",
+      "reason": "public tests and hidden evaluation checks passed",
+      "failure_class": "key_error",
+      "repair_source": "skill:importlib-entry-points",
+      "attempts": 1,
+      "model_calls": 0,
+      "wall_clock_seconds": 6.534,
+      "setup_seconds": 5.917,
+      "estimated_cost_usd": 0.0,
+      "patch": "--- a/requirements.txt\n+++ b/requirements.txt\n@@ -1 +1 @@\n-importlib-metadata==4.13.0\n+importlib-metadata==8.5.0\n--- a/src/plugdemo/loader.py\n+++ b/src/plugdemo/loader.py\n@@ -2,5 +2,5 @@\n \n \n def plugin_names() -> list[str]:\n-    selected = entry_points()[\"upgradeproof.plugins\"]\n+    selected = entry_points(group=\"upgradeproof.plugins\")\n     return sorted(entry.name for entry in selected)\n",
+      "rejections": [],
+      "baseline_passed": true,
+      "upgrade_passed": true,
+      "public_tests_passed": true,
+      "oracle_passed": true,
+      "timeline": [
+        {
+          "state": "baseline",
+          "ok": true,
+          "timed_out": false,
+          "output": ".                                                                        [100%]\n=============================== warnings summary ===============================\ntests/test_loader.py::test_lists_plugins\n  /tmp/upgradeproof-importlib-entry-points-wcfe1czp/src/plugdemo/loader.py:5: DeprecationWarning: SelectableGroups dict interface is deprecated. Use select.\n    selected = entry_points()[\"upgradeproof.plugins\"]\n\n-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html\n1 passed, 1 warning in 0.01s"
+        },
+        {
+          "state": "upgrade",
+          "ok": true,
+          "timed_out": false,
+          "output": " in ./.venv/lib/python3.12/site-packages (from pytest==8.3.5) (26.3)\nRequirement already satisfied: pluggy<2,>=1.5 in ./.venv/lib/python3.12/site-packages (from pytest==8.3.5) (1.7.0)\nRequirement already satisfied: zipp>=3.20 in ./.venv/lib/python3.12/site-packages (from importlib-metadata==8.5.0->-r requirements.txt (line 1)) (4.1.2)\nUsing cached importlib_metadata-8.5.0-py3-none-any.whl (26 kB)\nInstalling collected packages: importlib-metadata\n  Attempting uninstall: importlib-metadata\n    Found existing installation: importlib-metadata 4.13.0\n    Uninstalling importlib-metadata-4.13.0:\n      Successfully uninstalled importlib-metadata-4.13.0\nSuccessfully installed importlib-metadata-8.5.0"
+        },
+        {
+          "state": "retest",
+          "ok": false,
+          "failure_class": "key_error",
+          "output": "importlib_metadata/__init__.py:289: in __getitem__\n    return next(iter(self.select(name=name)))\nE   StopIteration\n\nDuring handling of the above exception, another exception occurred:\ntests/test_loader.py:5: in test_lists_plugins\n    assert plugin_names() == [\"alpha\", \"beta\"]\nsrc/plugdemo/loader.py:5: in plugin_names\n    selected = entry_points()[\"upgradeproof.plugins\"]\n.venv/lib/python3.12/site-packages/importlib_metadata/__init__.py:291: in __getitem__\n    raise KeyError(name)\nE   KeyError: 'upgradeproof.plugins'\n=========================== short test summary info ============================\nFAILED tests/test_loader.py::test_lists_plugins - KeyError: 'upgradeproof.plu...\n1 failed in 0.02s"
+        },
+        {
+          "state": "propose",
+          "attempt": 1,
+          "source": "skill:importlib-entry-points",
+          "abstain": false,
+          "model_call": false
+        },
+        {
+          "state": "apply",
+          "attempt": 1,
+          "ok": true
+        },
+        {
+          "state": "oracle",
+          "attempt": 1,
+          "ok": true
+        }
+      ],
+      "limitation": "Passing tests are evidence only for the behaviors those tests execute. They do not prove the project is compatible with the new dependency in every environment.",
+      "expected_verdict": "verified_repair",
+      "expectation_met": true,
+      "cohort": "repair"
+    },
+    {
+      "case_id": "itsdangerous-serializer",
+      "title": "itsdangerous 2 removes TimedJSONWebSignatureSerializer",
+      "mode": "rules",
+      "verdict": "verified_repair",
+      "reason": "public tests and hidden evaluation checks passed",
+      "failure_class": "import_error",
+      "repair_source": "rule:itsdangerous-timed-serializer",
+      "attempts": 1,
+      "model_calls": 0,
+      "wall_clock_seconds": 4.108,
+      "setup_seconds": 3.531,
+      "estimated_cost_usd": 0.0,
+      "patch": "--- a/requirements.txt\n+++ b/requirements.txt\n@@ -1 +1 @@\n-itsdangerous==1.1.0\n+itsdangerous==2.2.0\n--- a/src/tokens/issuer.py\n+++ b/src/tokens/issuer.py\n@@ -1,14 +1,11 @@\n-from itsdangerous import TimedJSONWebSignatureSerializer\n+from itsdangerous import URLSafeTimedSerializer\n \n \n def issue(payload: dict, secret: str) -> str:\n-    serializer = TimedJSONWebSignatureSerializer(secret, expires_in=3600)\n-    token = serializer.dumps(payload)\n-    if isinstance(token, bytes):\n-        return token.decode()\n-    return token\n+    serializer = URLSafeTimedSerializer(secret)\n+    return serializer.dumps(payload)\n \n \n def read(token: str, secret: str) -> dict:\n-    serializer = TimedJSONWebSignatureSerializer(secret, expires_in=3600)\n-    return serializer.loads(token)\n+    serializer = URLSafeTimedSerializer(secret)\n+    return serializer.loads(token, max_age=3600)\n",
+      "rejections": [],
+      "baseline_passed": true,
+      "upgrade_passed": true,
+      "public_tests_passed": true,
+      "oracle_passed": true,
+      "timeline": [
+        {
+          "state": "baseline",
+          "ok": true,
+          "timed_out": false,
+          "output": ".                                                                        [100%]\n1 passed in 0.01s"
+        },
+        {
+          "state": "upgrade",
+          "ok": true,
+          "timed_out": false,
+          "output": "gerous-2.2.0-py3-none-any.whl.metadata (1.9 kB)\nRequirement already satisfied: iniconfig in ./.venv/lib/python3.12/site-packages (from pytest==8.3.5) (2.3.1)\nRequirement already satisfied: packaging in ./.venv/lib/python3.12/site-packages (from pytest==8.3.5) (26.3)\nRequirement already satisfied: pluggy<2,>=1.5 in ./.venv/lib/python3.12/site-packages (from pytest==8.3.5) (1.7.0)\nUsing cached itsdangerous-2.2.0-py3-none-any.whl (16 kB)\nInstalling collected packages: itsdangerous\n  Attempting uninstall: itsdangerous\n    Found existing installation: itsdangerous 1.1.0\n    Uninstalling itsdangerous-1.1.0:\n      Successfully uninstalled itsdangerous-1.1.0\nSuccessfully installed itsdangerous-2.2.0"
+        },
+        {
+          "state": "retest",
+          "ok": false,
+          "failure_class": "import_error",
+          "output": "ython3.12/importlib/__init__.py:90: in import_module\n    return _bootstrap._gcd_import(name[level:], package, level)\ntests/test_issuer.py:1: in <module>\n    from tokens.issuer import issue, read\nsrc/tokens/issuer.py:1: in <module>\n    from itsdangerous import TimedJSONWebSignatureSerializer\nE   ImportError: cannot import name 'TimedJSONWebSignatureSerializer' from 'itsdangerous' (/tmp/upgradeproof-itsdangerous-serializer-rvwirhre/.venv/lib/python3.12/site-packages/itsdangerous/__init__.py)\n=========================== short test summary info ============================\nERROR tests/test_issuer.py\n!!!!!!!!!!!!!!!!!!!! Interrupted: 1 error during collection !!!!!!!!!!!!!!!!!!!!\n1 error in 0.06s"
+        },
+        {
+          "state": "propose",
+          "attempt": 1,
+          "source": "rule:itsdangerous-timed-serializer",
+          "abstain": false,
+          "model_call": false
+        },
+        {
+          "state": "apply",
+          "attempt": 1,
+          "ok": true
+        },
+        {
+          "state": "oracle",
+          "attempt": 1,
+          "ok": true
+        }
+      ],
+      "limitation": "Passing tests are evidence only for the behaviors those tests execute. They do not prove the project is compatible with the new dependency in every environment.",
+      "expected_verdict": "verified_repair",
+      "expectation_met": true,
+      "cohort": "repair"
+    },
+    {
+      "case_id": "itsdangerous-serializer",
+      "title": "itsdangerous 2 removes TimedJSONWebSignatureSerializer",
+      "mode": "skill",
+      "verdict": "verified_repair",
+      "reason": "public tests and hidden evaluation checks passed",
+      "failure_class": "import_error",
+      "repair_source": "skill:itsdangerous-timed-serializer",
+      "attempts": 1,
+      "model_calls": 0,
+      "wall_clock_seconds": 4.135,
+      "setup_seconds": 3.531,
+      "estimated_cost_usd": 0.0,
+      "patch": "--- a/requirements.txt\n+++ b/requirements.txt\n@@ -1 +1 @@\n-itsdangerous==1.1.0\n+itsdangerous==2.2.0\n--- a/src/tokens/issuer.py\n+++ b/src/tokens/issuer.py\n@@ -1,14 +1,11 @@\n-from itsdangerous import TimedJSONWebSignatureSerializer\n+from itsdangerous import URLSafeTimedSerializer\n \n \n def issue(payload: dict, secret: str) -> str:\n-    serializer = TimedJSONWebSignatureSerializer(secret, expires_in=3600)\n-    token = serializer.dumps(payload)\n-    if isinstance(token, bytes):\n-        return token.decode()\n-    return token\n+    serializer = URLSafeTimedSerializer(secret)\n+    return serializer.dumps(payload)\n \n \n def read(token: str, secret: str) -> dict:\n-    serializer = TimedJSONWebSignatureSerializer(secret, expires_in=3600)\n-    return serializer.loads(token)\n+    serializer = URLSafeTimedSerializer(secret)\n+    return serializer.loads(token, max_age=3600)\n",
+      "rejections": [],
+      "baseline_passed": true,
+      "upgrade_passed": true,
+      "public_tests_passed": true,
+      "oracle_passed": true,
+      "timeline": [
+        {
+          "state": "baseline",
+          "ok": true,
+          "timed_out": false,
+          "output": ".                                                                        [100%]\n1 passed in 0.01s"
+        },
+        {
+          "state": "upgrade",
+          "ok": true,
+          "timed_out": false,
+          "output": "gerous-2.2.0-py3-none-any.whl.metadata (1.9 kB)\nRequirement already satisfied: iniconfig in ./.venv/lib/python3.12/site-packages (from pytest==8.3.5) (2.3.1)\nRequirement already satisfied: packaging in ./.venv/lib/python3.12/site-packages (from pytest==8.3.5) (26.3)\nRequirement already satisfied: pluggy<2,>=1.5 in ./.venv/lib/python3.12/site-packages (from pytest==8.3.5) (1.7.0)\nUsing cached itsdangerous-2.2.0-py3-none-any.whl (16 kB)\nInstalling collected packages: itsdangerous\n  Attempting uninstall: itsdangerous\n    Found existing installation: itsdangerous 1.1.0\n    Uninstalling itsdangerous-1.1.0:\n      Successfully uninstalled itsdangerous-1.1.0\nSuccessfully installed itsdangerous-2.2.0"
+        },
+        {
+          "state": "retest",
+          "ok": false,
+          "failure_class": "import_error",
+          "output": "ython3.12/importlib/__init__.py:90: in import_module\n    return _bootstrap._gcd_import(name[level:], package, level)\ntests/test_issuer.py:1: in <module>\n    from tokens.issuer import issue, read\nsrc/tokens/issuer.py:1: in <module>\n    from itsdangerous import TimedJSONWebSignatureSerializer\nE   ImportError: cannot import name 'TimedJSONWebSignatureSerializer' from 'itsdangerous' (/tmp/upgradeproof-itsdangerous-serializer-rvwirhre/.venv/lib/python3.12/site-packages/itsdangerous/__init__.py)\n=========================== short test summary info ============================\nERROR tests/test_issuer.py\n!!!!!!!!!!!!!!!!!!!! Interrupted: 1 error during collection !!!!!!!!!!!!!!!!!!!!\n1 error in 0.06s"
+        },
+        {
+          "state": "propose",
+          "attempt": 1,
+          "source": "skill:itsdangerous-timed-serializer",
+          "abstain": false,
+          "model_call": false
+        },
+        {
+          "state": "apply",
+          "attempt": 1,
+          "ok": true
+        },
+        {
+          "state": "oracle",
+          "attempt": 1,
+          "ok": true
+        }
+      ],
+      "limitation": "Passing tests are evidence only for the behaviors those tests execute. They do not prove the project is compatible with the new dependency in every environment.",
+      "expected_verdict": "verified_repair",
+      "expectation_met": true,
+      "cohort": "repair"
+    },
+    {
+      "case_id": "packaging-legacy-version",
+      "title": "packaging 22 removes LegacyVersion",
+      "mode": "rules",
+      "verdict": "verified_repair",
+      "reason": "public tests and hidden evaluation checks passed",
+      "failure_class": "import_error",
+      "repair_source": "rule:packaging-legacy-version",
+      "attempts": 1,
+      "model_calls": 0,
+      "wall_clock_seconds": 4.246,
+      "setup_seconds": 3.746,
+      "estimated_cost_usd": 0.0,
+      "patch": "--- a/requirements.txt\n+++ b/requirements.txt\n@@ -1 +1 @@\n-packaging==21.3\n+packaging==24.2\n--- a/src/versions/describe.py\n+++ b/src/versions/describe.py\n@@ -1,8 +1,9 @@\n-from packaging.version import LegacyVersion, parse\n+from packaging.version import InvalidVersion, parse\n \n \n def describe(version: str) -> str:\n-    parsed = parse(version)\n-    if isinstance(parsed, LegacyVersion):\n-        return f\"legacy:{parsed}\"\n+    try:\n+        parsed = parse(version)\n+    except InvalidVersion:\n+        return f\"legacy:{version}\"\n     return f\"pep440:{parsed}\"\n",
+      "rejections": [],
+      "baseline_passed": true,
+      "upgrade_passed": true,
+      "public_tests_passed": true,
+      "oracle_passed": true,
+      "timeline": [
+        {
+          "state": "baseline",
+          "ok": true,
+          "timed_out": false,
+          "output": ".                                                                        [100%]\n1 passed in 0.01s"
+        },
+        {
+          "state": "upgrade",
+          "ok": true,
+          "timed_out": false,
+          "output": "=8.3.5 in ./.venv/lib/python3.12/site-packages (8.3.5)\nCollecting packaging==24.2 (from -r requirements.txt (line 1))\n  Using cached packaging-24.2-py3-none-any.whl.metadata (3.2 kB)\nRequirement already satisfied: iniconfig in ./.venv/lib/python3.12/site-packages (from pytest==8.3.5) (2.3.1)\nRequirement already satisfied: pluggy<2,>=1.5 in ./.venv/lib/python3.12/site-packages (from pytest==8.3.5) (1.7.0)\nUsing cached packaging-24.2-py3-none-any.whl (65 kB)\nInstalling collected packages: packaging\n  Attempting uninstall: packaging\n    Found existing installation: packaging 21.3\n    Uninstalling packaging-21.3:\n      Successfully uninstalled packaging-21.3\nSuccessfully installed packaging-24.2"
+        },
+        {
+          "state": "retest",
+          "ok": false,
+          "failure_class": "import_error",
+          "output": "k:\n/usr/lib/python3.12/importlib/__init__.py:90: in import_module\n    return _bootstrap._gcd_import(name[level:], package, level)\ntests/test_describe.py:1: in <module>\n    from versions.describe import describe\nsrc/versions/describe.py:1: in <module>\n    from packaging.version import LegacyVersion, parse\nE   ImportError: cannot import name 'LegacyVersion' from 'packaging.version' (/tmp/upgradeproof-packaging-legacy-version-7hps10df/.venv/lib/python3.12/site-packages/packaging/version.py)\n=========================== short test summary info ============================\nERROR tests/test_describe.py\n!!!!!!!!!!!!!!!!!!!! Interrupted: 1 error during collection !!!!!!!!!!!!!!!!!!!!\n1 error in 0.05s"
+        },
+        {
+          "state": "propose",
+          "attempt": 1,
+          "source": "rule:packaging-legacy-version",
+          "abstain": false,
+          "model_call": false
+        },
+        {
+          "state": "apply",
+          "attempt": 1,
+          "ok": true
+        },
+        {
+          "state": "oracle",
+          "attempt": 1,
+          "ok": true
+        }
+      ],
+      "limitation": "Passing tests are evidence only for the behaviors those tests execute. They do not prove the project is compatible with the new dependency in every environment.",
+      "expected_verdict": "verified_repair",
+      "expectation_met": true,
+      "cohort": "repair"
+    },
+    {
+      "case_id": "packaging-legacy-version",
+      "title": "packaging 22 removes LegacyVersion",
+      "mode": "skill",
+      "verdict": "verified_repair",
+      "reason": "public tests and hidden evaluation checks passed",
+      "failure_class": "import_error",
+      "repair_source": "skill:packaging-legacy-version",
+      "attempts": 1,
+      "model_calls": 0,
+      "wall_clock_seconds": 4.244,
+      "setup_seconds": 3.746,
+      "estimated_cost_usd": 0.0,
+      "patch": "--- a/requirements.txt\n+++ b/requirements.txt\n@@ -1 +1 @@\n-packaging==21.3\n+packaging==24.2\n--- a/src/versions/describe.py\n+++ b/src/versions/describe.py\n@@ -1,8 +1,9 @@\n-from packaging.version import LegacyVersion, parse\n+from packaging.version import InvalidVersion, parse\n \n \n def describe(version: str) -> str:\n-    parsed = parse(version)\n-    if isinstance(parsed, LegacyVersion):\n-        return f\"legacy:{parsed}\"\n+    try:\n+        parsed = parse(version)\n+    except InvalidVersion:\n+        return f\"legacy:{version}\"\n     return f\"pep440:{parsed}\"\n",
+      "rejections": [],
+      "baseline_passed": true,
+      "upgrade_passed": true,
+      "public_tests_passed": true,
+      "oracle_passed": true,
+      "timeline": [
+        {
+          "state": "baseline",
+          "ok": true,
+          "timed_out": false,
+          "output": ".                                                                        [100%]\n1 passed in 0.01s"
+        },
+        {
+          "state": "upgrade",
+          "ok": true,
+          "timed_out": false,
+          "output": "=8.3.5 in ./.venv/lib/python3.12/site-packages (8.3.5)\nCollecting packaging==24.2 (from -r requirements.txt (line 1))\n  Using cached packaging-24.2-py3-none-any.whl.metadata (3.2 kB)\nRequirement already satisfied: iniconfig in ./.venv/lib/python3.12/site-packages (from pytest==8.3.5) (2.3.1)\nRequirement already satisfied: pluggy<2,>=1.5 in ./.venv/lib/python3.12/site-packages (from pytest==8.3.5) (1.7.0)\nUsing cached packaging-24.2-py3-none-any.whl (65 kB)\nInstalling collected packages: packaging\n  Attempting uninstall: packaging\n    Found existing installation: packaging 21.3\n    Uninstalling packaging-21.3:\n      Successfully uninstalled packaging-21.3\nSuccessfully installed packaging-24.2"
+        },
+        {
+          "state": "retest",
+          "ok": false,
+          "failure_class": "import_error",
+          "output": "k:\n/usr/lib/python3.12/importlib/__init__.py:90: in import_module\n    return _bootstrap._gcd_import(name[level:], package, level)\ntests/test_describe.py:1: in <module>\n    from versions.describe import describe\nsrc/versions/describe.py:1: in <module>\n    from packaging.version import LegacyVersion, parse\nE   ImportError: cannot import name 'LegacyVersion' from 'packaging.version' (/tmp/upgradeproof-packaging-legacy-version-7hps10df/.venv/lib/python3.12/site-packages/packaging/version.py)\n=========================== short test summary info ============================\nERROR tests/test_describe.py\n!!!!!!!!!!!!!!!!!!!! Interrupted: 1 error during collection !!!!!!!!!!!!!!!!!!!!\n1 error in 0.05s"
+        },
+        {
+          "state": "propose",
+          "attempt": 1,
+          "source": "skill:packaging-legacy-version",
+          "abstain": false,
+          "model_call": false
+        },
+        {
+          "state": "apply",
+          "attempt": 1,
+          "ok": true
+        },
+        {
+          "state": "oracle",
+          "attempt": 1,
+          "ok": true
+        }
+      ],
+      "limitation": "Passing tests are evidence only for the behaviors those tests execute. They do not prove the project is compatible with the new dependency in every environment.",
+      "expected_verdict": "verified_repair",
+      "expectation_met": true,
+      "cohort": "repair"
+    },
+    {
+      "case_id": "markupsafe-soft-unicode",
+      "title": "MarkupSafe 2.1 removes soft_unicode; no promoted rule",
+      "mode": "rules",
+      "verdict": "unresolved",
+      "reason": "no promoted repair matches this failure",
+      "failure_class": "import_error",
+      "repair_source": "rule",
+      "attempts": 1,
+      "model_calls": 0,
+      "wall_clock_seconds": 3.747,
+      "setup_seconds": 3.589,
+      "estimated_cost_usd": 0.0,
+      "patch": "",
+      "rejections": [],
+      "baseline_passed": true,
+      "upgrade_passed": true,
+      "public_tests_passed": false,
+      "oracle_passed": null,
+      "timeline": [
+        {
+          "state": "baseline",
+          "ok": true,
+          "timed_out": false,
+          "output": ".                                                                        [100%]\n=============================== warnings summary ===============================\ntests/test_coerce.py::test_text_and_number\ntests/test_coerce.py::test_text_and_number\n  /tmp/upgradeproof-markupsafe-soft-unicode-4sue7_st/src/textsafe/coerce.py:5: DeprecationWarning: 'soft_unicode' has been renamed to 'soft_str'. The old name will be removed in MarkupSafe 2.1.\n    return str(soft_unicode(value))\n\n-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html\n1 passed, 2 warnings in 0.00s"
+        },
+        {
+          "state": "upgrade",
+          "ok": true,
+          "timed_out": false,
+          "output": "l.metadata (3.0 kB)\nRequirement already satisfied: iniconfig in ./.venv/lib/python3.12/site-packages (from pytest==8.3.5) (2.3.1)\nRequirement already satisfied: packaging in ./.venv/lib/python3.12/site-packages (from pytest==8.3.5) (26.3)\nRequirement already satisfied: pluggy<2,>=1.5 in ./.venv/lib/python3.12/site-packages (from pytest==8.3.5) (1.7.0)\nUsing cached MarkupSafe-2.1.5-cp312-cp312-manylinux_2_17_x86_64.manylinux2014_x86_64.whl (28 kB)\nInstalling collected packages: markupsafe\n  Attempting uninstall: markupsafe\n    Found existing installation: MarkupSafe 2.0.1\n    Uninstalling MarkupSafe-2.0.1:\n      Successfully uninstalled MarkupSafe-2.0.1\nSuccessfully installed markupsafe-2.1.5"
+        },
+        {
+          "state": "retest",
+          "ok": false,
+          "failure_class": "import_error",
+          "output": "ve valid Python names.\nTraceback:\n/usr/lib/python3.12/importlib/__init__.py:90: in import_module\n    return _bootstrap._gcd_import(name[level:], package, level)\ntests/test_coerce.py:1: in <module>\n    from textsafe.coerce import as_text\nsrc/textsafe/coerce.py:1: in <module>\n    from markupsafe import soft_unicode\nE   ImportError: cannot import name 'soft_unicode' from 'markupsafe' (/tmp/upgradeproof-markupsafe-soft-unicode-4sue7_st/.venv/lib/python3.12/site-packages/markupsafe/__init__.py)\n=========================== short test summary info ============================\nERROR tests/test_coerce.py\n!!!!!!!!!!!!!!!!!!!! Interrupted: 1 error during collection !!!!!!!!!!!!!!!!!!!!\n1 error in 0.05s"
+        },
+        {
+          "state": "propose",
+          "attempt": 1,
+          "source": "rule",
+          "abstain": true,
+          "model_call": false
+        }
+      ],
+      "limitation": "Passing tests are evidence only for the behaviors those tests execute. They do not prove the project is compatible with the new dependency in every environment.",
+      "expected_verdict": "unresolved",
+      "expectation_met": true,
+      "cohort": "uncovered"
+    },
+    {
+      "case_id": "markupsafe-soft-unicode",
+      "title": "MarkupSafe 2.1 removes soft_unicode; no promoted rule",
+      "mode": "skill",
+      "verdict": "unresolved",
+      "reason": "no promoted repair matches this failure",
+      "failure_class": "import_error",
+      "repair_source": "skill",
+      "attempts": 1,
+      "model_calls": 0,
+      "wall_clock_seconds": 3.756,
+      "setup_seconds": 3.589,
+      "estimated_cost_usd": 0.0,
+      "patch": "",
+      "rejections": [],
+      "baseline_passed": true,
+      "upgrade_passed": true,
+      "public_tests_passed": false,
+      "oracle_passed": null,
+      "timeline": [
+        {
+          "state": "baseline",
+          "ok": true,
+          "timed_out": false,
+          "output": ".                                                                        [100%]\n=============================== warnings summary ===============================\ntests/test_coerce.py::test_text_and_number\ntests/test_coerce.py::test_text_and_number\n  /tmp/upgradeproof-markupsafe-soft-unicode-4sue7_st/src/textsafe/coerce.py:5: DeprecationWarning: 'soft_unicode' has been renamed to 'soft_str'. The old name will be removed in MarkupSafe 2.1.\n    return str(soft_unicode(value))\n\n-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html\n1 passed, 2 warnings in 0.00s"
+        },
+        {
+          "state": "upgrade",
+          "ok": true,
+          "timed_out": false,
+          "output": "l.metadata (3.0 kB)\nRequirement already satisfied: iniconfig in ./.venv/lib/python3.12/site-packages (from pytest==8.3.5) (2.3.1)\nRequirement already satisfied: packaging in ./.venv/lib/python3.12/site-packages (from pytest==8.3.5) (26.3)\nRequirement already satisfied: pluggy<2,>=1.5 in ./.venv/lib/python3.12/site-packages (from pytest==8.3.5) (1.7.0)\nUsing cached MarkupSafe-2.1.5-cp312-cp312-manylinux_2_17_x86_64.manylinux2014_x86_64.whl (28 kB)\nInstalling collected packages: markupsafe\n  Attempting uninstall: markupsafe\n    Found existing installation: MarkupSafe 2.0.1\n    Uninstalling MarkupSafe-2.0.1:\n      Successfully uninstalled MarkupSafe-2.0.1\nSuccessfully installed markupsafe-2.1.5"
+        },
+        {
+          "state": "retest",
+          "ok": false,
+          "failure_class": "import_error",
+          "output": "ve valid Python names.\nTraceback:\n/usr/lib/python3.12/importlib/__init__.py:90: in import_module\n    return _bootstrap._gcd_import(name[level:], package, level)\ntests/test_coerce.py:1: in <module>\n    from textsafe.coerce import as_text\nsrc/textsafe/coerce.py:1: in <module>\n    from markupsafe import soft_unicode\nE   ImportError: cannot import name 'soft_unicode' from 'markupsafe' (/tmp/upgradeproof-markupsafe-soft-unicode-4sue7_st/.venv/lib/python3.12/site-packages/markupsafe/__init__.py)\n=========================== short test summary info ============================\nERROR tests/test_coerce.py\n!!!!!!!!!!!!!!!!!!!! Interrupted: 1 error during collection !!!!!!!!!!!!!!!!!!!!\n1 error in 0.05s"
+        },
+        {
+          "state": "propose",
+          "attempt": 1,
+          "source": "skill",
+          "abstain": true,
+          "model_call": false
+        }
+      ],
+      "limitation": "Passing tests are evidence only for the behaviors those tests execute. They do not prove the project is compatible with the new dependency in every environment.",
+      "expected_verdict": "unresolved",
+      "expectation_met": true,
+      "cohort": "uncovered"
+    },
+    {
+      "case_id": "invalid-baseline",
+      "title": "The project already fails before any upgrade",
+      "mode": "rules",
+      "verdict": "invalid_baseline",
+      "reason": "public tests failed on the original dependency",
+      "failure_class": "unknown",
+      "repair_source": null,
+      "attempts": 0,
+      "model_calls": 0,
+      "wall_clock_seconds": 3.154,
+      "setup_seconds": 3.154,
+      "estimated_cost_usd": 0.0,
+      "patch": "",
+      "rejections": [],
+      "baseline_passed": false,
+      "upgrade_passed": null,
+      "public_tests_passed": null,
+      "oracle_passed": null,
+      "timeline": [
+        {
+          "state": "baseline",
+          "ok": false,
+          "timed_out": false,
+          "output": "F                                                                        [100%]\n=================================== FAILURES ===================================\n__________________ test_value_matches_the_documented_contract __________________\ntests/test_counter.py:5: in test_value_matches_the_documented_contract\n    assert value() == 0\nE   assert 1 == 0\nE    +  where 1 = value()\n=========================== short test summary info ============================\nFAILED tests/test_counter.py::test_value_matches_the_documented_contract - as...\n1 failed in 0.01s"
+        }
+      ],
+      "limitation": "Passing tests are evidence only for the behaviors those tests execute. They do not prove the project is compatible with the new dependency in every environment.",
+      "expected_verdict": "invalid_baseline",
+      "expectation_met": true,
+      "cohort": "adversarial"
+    },
+    {
+      "case_id": "clean-bump",
+      "title": "The project already uses the urllib3 2 keyword",
+      "mode": "rules",
+      "verdict": "verified_bump",
+      "reason": "the upgraded dependency passed public tests and hidden evaluation checks with no source change",
+      "failure_class": null,
+      "repair_source": "harness:version-bump",
+      "attempts": 0,
+      "model_calls": 0,
+      "wall_clock_seconds": 4.428,
+      "setup_seconds": 4.114,
+      "estimated_cost_usd": 0.0,
+      "patch": "--- a/requirements.txt\n+++ b/requirements.txt\n@@ -1 +1 @@\n-urllib3==1.26.20\n+urllib3==2.2.3\n",
+      "rejections": [],
+      "baseline_passed": true,
+      "upgrade_passed": true,
+      "public_tests_passed": true,
+      "oracle_passed": true,
+      "timeline": [
+        {
+          "state": "baseline",
+          "ok": true,
+          "timed_out": false,
+          "output": ".                                                                        [100%]\n1 passed in 0.04s"
+        },
+        {
+          "state": "upgrade",
+          "ok": true,
+          "timed_out": false,
+          "output": "t (line 1))\n  Using cached urllib3-2.2.3-py3-none-any.whl.metadata (6.5 kB)\nRequirement already satisfied: iniconfig in ./.venv/lib/python3.12/site-packages (from pytest==8.3.5) (2.3.1)\nRequirement already satisfied: packaging in ./.venv/lib/python3.12/site-packages (from pytest==8.3.5) (26.3)\nRequirement already satisfied: pluggy<2,>=1.5 in ./.venv/lib/python3.12/site-packages (from pytest==8.3.5) (1.7.0)\nUsing cached urllib3-2.2.3-py3-none-any.whl (126 kB)\nInstalling collected packages: urllib3\n  Attempting uninstall: urllib3\n    Found existing installation: urllib3 1.26.20\n    Uninstalling urllib3-1.26.20:\n      Successfully uninstalled urllib3-1.26.20\nSuccessfully installed urllib3-2.2.3"
+        },
+        {
+          "state": "retest",
+          "ok": true,
+          "failure_class": null,
+          "output": ".                                                                        [100%]\n1 passed in 0.06s"
+        },
+        {
+          "state": "oracle",
+          "ok": true,
+          "bump": true
+        }
+      ],
+      "limitation": "Passing tests are evidence only for the behaviors those tests execute. They do not prove the project is compatible with the new dependency in every environment.",
+      "expected_verdict": "verified_bump",
+      "expectation_met": true,
+      "cohort": "adversarial"
+    },
+    {
+      "case_id": "constraint-conflict",
+      "title": "Another local requirement forbids urllib3 2",
+      "mode": "rules",
+      "verdict": "constraint_conflict",
+      "reason": "dependency resolver rejected the requested version",
+      "failure_class": "constraint_conflict",
+      "repair_source": null,
+      "attempts": 0,
+      "model_calls": 0,
+      "wall_clock_seconds": 6.526,
+      "setup_seconds": 6.526,
+      "estimated_cost_usd": 0.0,
+      "patch": "",
+      "rejections": [],
+      "baseline_passed": true,
+      "upgrade_passed": false,
+      "public_tests_passed": null,
+      "oracle_passed": null,
+      "timeline": [
+        {
+          "state": "baseline",
+          "ok": true,
+          "timed_out": false,
+          "output": ".                                                                        [100%]\n1 passed in 0.03s"
+        },
+        {
+          "state": "upgrade",
+          "ok": false,
+          "timed_out": false,
+          "output": "7.0)\nINFO: pip is looking at multiple versions of legacy-pin to determine which version is compatible with other requirements. This could take a while.\n\nThe conflict is caused by:\n    The user requested urllib3==2.2.3\n    legacy-pin 1.0.0 depends on urllib3<2\n\nTo fix this you could try to:\n1. loosen the range of package versions you've specified\n2. remove package versions to allow pip attempt to solve the dependency conflict\n\n\nERROR: Cannot install -r requirements.txt (line 2) and urllib3==2.2.3 because these package versions have conflicting dependencies.\nERROR: ResolutionImpossible: for help visit https://pip.pypa.io/en/latest/topics/dependency-resolution/#dealing-with-dependency-conflicts"
+        }
+      ],
+      "limitation": "Passing tests are evidence only for the behaviors those tests execute. They do not prove the project is compatible with the new dependency in every environment.",
+      "expected_verdict": "constraint_conflict",
+      "expectation_met": true,
+      "cohort": "adversarial"
+    }
+  ],
+  "probes": [
+    {
+      "name": "invented urllib3 keyword is caught by execution",
+      "ok": true,
+      "verdict": "unresolved",
+      "reason": "tests_still_failing",
+      "model_calls": 2
+    },
+    {
+      "name": "packaging repair that passes public tests but fails the oracle is not delivered",
+      "ok": true,
+      "verdict": "unresolved",
+      "reason": "oracle_failed",
+      "model_calls": 2
+    }
+  ],
+  "guards": [
+    {
+      "name": "invalid_baseline",
+      "ok": true,
+      "verdict": "invalid_baseline",
+      "reason": "public tests failed on the original dependency",
+      "model_calls": 0,
+      "delivered_patch": false
+    },
+    {
+      "name": "constraint_conflict",
+      "ok": true,
+      "verdict": "constraint_conflict",
+      "reason": "dependency resolver rejected the requested version",
+      "model_calls": 0,
+      "delivered_patch": false
+    },
+    {
+      "name": "verified_bump",
+      "ok": true,
+      "verdict": "verified_bump",
+      "reason": "the upgraded dependency passed public tests and hidden evaluation checks with no source change",
+      "model_calls": 0,
+      "delivered_patch": false
+    },
+    {
+      "name": "reject_protected_test_edit",
+      "ok": true,
+      "verdict": "unresolved",
+      "reason": "patch_rejected: protected test modification: tests/test_client.py; tests/test_client.py is not an application source file",
+      "model_calls": 2,
+      "delivered_patch": false
+    },
+    {
+      "name": "reject_unrelated_edit",
+      "ok": true,
+      "verdict": "unresolved",
+      "reason": "patch_rejected: outside failure scope: src/notes.py",
+      "model_calls": 2,
+      "delivered_patch": false
+    },
+    {
+      "name": "reject_deleted_assert",
+      "ok": true,
+      "verdict": "unresolved",
+      "reason": "patch_rejected: protected assertion removed in src/retryctx/client.py",
+      "model_calls": 0,
+      "delivered_patch": false
+    },
+    {
+      "name": "invented_api_caught_by_execution",
+      "ok": true,
+      "verdict": "unresolved",
+      "reason": "tests_still_failing",
+      "model_calls": 2,
+      "delivered_patch": false
+    },
+    {
+      "name": "oracle_failure_not_delivered",
+      "ok": true,
+      "verdict": "unresolved",
+      "reason": "oracle_failed",
+      "model_calls": 2,
+      "delivered_patch": false
+    },
+    {
+      "name": "retry_limit",
+      "ok": true,
+      "verdict": "unresolved",
+      "reason": "retry_limit",
+      "model_calls": 0,
+      "delivered_patch": false
+    },
+    {
+      "name": "abstain",
+      "ok": true,
+      "verdict": "unresolved",
+      "reason": "no promoted repair matches this failure",
+      "model_calls": 0,
+      "delivered_patch": false
+    }
+  ],
+  "promotion": {
+    "ok": true,
+    "accepted": true,
+    "promote_error": "",
+    "first_source": "model:scripted-first-encounter",
+    "first_verified": true,
+    "first_model_calls": 1,
+    "first_verdict": "verified_repair",
+    "later_source": "rule:urllib3-retry-method-whitelist",
+    "later_verified": true,
+    "later_model_calls": 0,
+    "later_verdict": "verified_repair",
+    "promoted_rule": "urllib3-retry-method-whitelist.toml"
+  },
+  "isolation": [
+    {
+      "case_id": "urllib3-retry",
+      "ok": true
+    },
+    {
+      "case_id": "werkzeug-url-quote",
+      "ok": true
+    },
+    {
+      "case_id": "importlib-entry-points",
+      "ok": true
+    },
+    {
+      "case_id": "itsdangerous-serializer",
+      "ok": true
+    },
+    {
+      "case_id": "packaging-legacy-version",
+      "ok": true
+    },
+    {
+      "case_id": "markupsafe-soft-unicode",
+      "ok": true
+    },
+    {
+      "case_id": "invalid-baseline",
+      "ok": true
+    },
+    {
+      "case_id": "clean-bump",
+      "ok": true
+    },
+    {
+      "case_id": "constraint-conflict",
+      "ok": true
+    }
+  ],
+  "cpu_model": {
+    "status": "unavailable: set UPGRADEPROOF_GGUF to a local GGUF file",
+    "ran": false,
+    "rows": []
+  },
+  "metrics": {
+    "repair/rules": {
+      "runs": 5,
+      "expectations_met": 5,
+      "verified": 5,
+      "verified_success_rate": 1.0,
+      "regressions": 0,
+      "model_calls": 0,
+      "estimated_cost_usd": 0.0,
+      "cost_per_verified_repair": 0.0,
+      "wall_clock_seconds_sum_including_shared_setup": 24.947
+    },
+    "repair/skill": {
+      "runs": 5,
+      "expectations_met": 5,
+      "verified": 5,
+      "verified_success_rate": 1.0,
+      "regressions": 0,
+      "model_calls": 0,
+      "estimated_cost_usd": 0.0,
+      "cost_per_verified_repair": 0.0,
+      "wall_clock_seconds_sum_including_shared_setup": 24.99
+    },
+    "uncovered/rules": {
+      "runs": 1,
+      "expectations_met": 1,
+      "verified": 0,
+      "verified_success_rate": 0.0,
+      "regressions": 0,
+      "model_calls": 0,
+      "estimated_cost_usd": 0.0,
+      "cost_per_verified_repair": null,
+      "wall_clock_seconds_sum_including_shared_setup": 3.747
+    },
+    "uncovered/skill": {
+      "runs": 1,
+      "expectations_met": 1,
+      "verified": 0,
+      "verified_success_rate": 0.0,
+      "regressions": 0,
+      "model_calls": 0,
+      "estimated_cost_usd": 0.0,
+      "cost_per_verified_repair": null,
+      "wall_clock_seconds_sum_including_shared_setup": 3.756
+    },
+    "adversarial/rules": {
+      "runs": 3,
+      "expectations_met": 3,
+      "verified": 1,
+      "verified_success_rate": 0.333,
+      "regressions": 0,
+      "model_calls": 0,
+      "estimated_cost_usd": 0.0,
+      "cost_per_verified_repair": 0.0,
+      "wall_clock_seconds_sum_including_shared_setup": 14.108
+    }
+  }
+}

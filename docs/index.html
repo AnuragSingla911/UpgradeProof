@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>UpgradeProof feasibility bench</title>
+  <link rel="stylesheet" href="site.css">
+</head>
+<body>
+  <header class="mast">
+    <p class="kicker">Feasibility bench</p>
+    <h1>UpgradeProof</h1>
+    <p class="lede">One dependency, one target version. Baseline, break, repair or abstain, then a patch only if the public tests and the hidden checks both pass.</p>
+  </header>
+  <main>
+    <section class="stamp-row" aria-label="Limits of the evidence">
+      <p class="stamp">Passing tests are not universal compatibility.</p>
+      <p>Rules in this repository were written with these fixtures. The repair rate is a feasibility result, not a score on unseen upgrades. Historical fixes elsewhere may also sit in a model's training data; these cases are newly authored and still not a contamination-free study.</p>
+    </section>
+    <section>
+      <h2>Harness pieces</h2>
+      <table>
+        <thead><tr><th>Piece</th><th>What it is responsible for</th></tr></thead>
+        <tbody>
+          <tr><td><code>workflow.md</code></td><td>The investigation procedure and its stopping points.</td></tr>
+          <tr><td><code>agent.md</code></td><td>The investigator's job, including when to abstain.</td></tr>
+          <tr><td><code>skills/*/SKILL.md</code></td><td>Migration notes. Only an <code>upgradeproof-repair</code> fence is executable.</td></tr>
+          <tr><td><code>rules.md</code></td><td>Which edits are allowed, and what a reviewer should believe.</td></tr>
+          <tr><td><code>rules/promoted</code></td><td>Fences a maintainer accepted after a verified run. These run with no model.</td></tr>
+          <tr><td>Python checks</td><td>Parse pins, classify logs, and reject out-of-scope diffs.</td></tr>
+          <tr><td>MCP tools</td><td>The same checks, plus workspace-bounded read, search, and test.</td></tr>
+          <tr><td>Harness</td><td>Permissions, attempts, timeouts, and the verdict.</td></tr>
+          <tr><td>Evaluations</td><td>Verified repairs, abstentions, caught bad patches, time, model calls, cost.</td></tr>
+        </tbody>
+      </table>
+    </section>
+    <section>
+      <h2>Latest run</h2>
+      <p id="meta">Loading results…</p>
+      <div id="metrics"></div>
+      <div class="table-wrap">
+        <table id="cases">
+          <thead>
+            <tr>
+              <th>Case</th><th>Cohort</th><th>Mode</th><th>Verdict</th><th>Model calls</th><th>Seconds</th><th>Expectation</th>
+            </tr>
+          </thead>
+          <tbody></tbody>
+        </table>
+      </div>
+    </section>
+    <section>
+      <h2>Execution probes and guards</h2>
+      <ul id="probes"></ul>
+      <ul id="guards"></ul>
+    </section>
+    <section>
+      <h2>Promotion</h2>
+      <p id="promotion">A scripted first encounter stands in for a model. It is not a neural net. A verified result can be accepted, and the next encounter uses the promoted rule with no model call.</p>
+    </section>
+    <section>
+      <h2>CPU model</h2>
+      <p id="cpu"></p>
+    </section>
+  </main>
+  <footer>
+    <p>Computation belongs in Actions. This page only displays a results file. Standard GitHub-hosted runners are the intended execution place; larger runners are billed separately.</p>
+  </footer>
+  <script src="results.js"></script>
+  <script src="render.js"></script>
+</body>
+</html>

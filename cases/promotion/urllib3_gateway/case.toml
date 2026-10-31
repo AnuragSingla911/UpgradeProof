@@ -1,0 +1,10 @@
+id = "urllib3-gateway"
+title = "Same urllib3 break in a second module"
+package = "urllib3"
+requirement_name = "urllib3"
+from_version = "1.26.20"
+to_version = "2.2.3"
+timeout_seconds = 180
+
+[expected]
+rules = "verified_repair"

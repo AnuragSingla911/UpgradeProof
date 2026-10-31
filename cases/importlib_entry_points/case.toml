@@ -1,0 +1,12 @@
+id = "importlib-entry-points"
+title = "importlib_metadata 8 drops the entry_points() dict interface"
+package = "importlib_metadata"
+requirement_name = "importlib-metadata"
+from_version = "4.13.0"
+to_version = "8.5.0"
+timeout_seconds = 180
+install_project = true
+
+[expected]
+rules = "verified_repair"
+skill = "verified_repair"

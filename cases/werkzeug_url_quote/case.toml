@@ -1,0 +1,11 @@
+id = "werkzeug-url-quote"
+title = "Werkzeug 3 removes werkzeug.urls.url_quote"
+package = "werkzeug"
+requirement_name = "werkzeug"
+from_version = "2.3.8"
+to_version = "3.0.6"
+timeout_seconds = 180
+
+[expected]
+rules = "verified_repair"
+skill = "verified_repair"
