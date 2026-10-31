@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>UpgradeProof</title>
+  <style>
+    :root { color-scheme: light; font-family: "Iowan Old Style", Palatino, Georgia, serif; }
+    body { margin: 0; background: #f4f1ea; color: #1c1915; }
+    main { max-width: 46rem; margin: 0 auto; padding: 2.5rem 1.25rem 4rem; }
+    h1 { font-weight: 500; font-size: 2rem; margin: 0 0 0.35rem; }
+    p.lead { margin: 0 0 1.5rem; line-height: 1.45; }
+    label { display: block; font-family: ui-sans-serif, system-ui, sans-serif; font-size: 0.78rem; letter-spacing: 0.04em; text-transform: uppercase; margin: 1rem 0 0.35rem; }
+    input, textarea { width: 100%; box-sizing: border-box; border: 1px solid #c8c0b4; background: #fffdf8; color: inherit; font: 0.95rem/1.45 ui-sans-serif, system-ui, sans-serif; padding: 0.65rem 0.75rem; }
+    textarea { min-height: 16rem; resize: vertical; }
+    button { margin-top: 1rem; background: #1c1915; color: #f4f1ea; border: 0; padding: 0.7rem 1.1rem; font: 0.95rem ui-sans-serif, system-ui, sans-serif; cursor: pointer; }
+    button:disabled { opacity: 0.55; cursor: wait; }
+    #status { font-family: ui-sans-serif, system-ui, sans-serif; margin-top: 1.25rem; }
+    pre { white-space: pre-wrap; background: #fffdf8; border: 1px solid #c8c0b4; padding: 1rem; font: 0.82rem/1.45 ui-monospace, monospace; }
+    a { color: inherit; }
+  </style>
+</head>
+<body>
+  <main>
+    <h1>UpgradeProof</h1>
+    <p class="lead">Give a public GitHub repository that contains a Java 11 app in <code>java-11/</code>, and the upgrade request. The JDK skill supplies a repair for each error class it knows. A verified run writes <code>java-17/</code> back to that repository. An error with no repair stays unresolved.</p>
+    <form id="upgrade">
+      <label for="repository">GitHub repository</label>
+      <input id="repository" name="repository" value="{{REPO_URL}}" autocomplete="off">
+      <label for="prompt">Prompt</label>
+      <textarea id="prompt" name="prompt">{{PROMPT}}</textarea>
+      <button type="submit" id="go">Upgrade to Java 17</button>
+    </form>
+    <div id="status"></div>
+    <pre id="journey" hidden></pre>
+  </main>
+  <script>
+    const form = document.querySelector("#upgrade");
+    const status = document.querySelector("#status");
+    const journey = document.querySelector("#journey");
+    const button = document.querySelector("#go");
+    form.addEventListener("submit", async (event) => {
+      event.preventDefault();
+      button.disabled = true;
+      journey.hidden = true;
+      status.textContent = "Cloning, compiling on JDK 11, then JDK 17…";
+      try {
+        const response = await fetch("/api/upgrade", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            repository: document.querySelector("#repository").value,
+            prompt: document.querySelector("#prompt").value,
+            push: true
+          })
+        });
+        const result = await response.json();
+        const pushed = result.pushed ? "Pushed java-17/ to the repository." : (result.publish_error || "Nothing was pushed.");
+        status.innerHTML = `<strong>${result.verdict || "unresolved"}</strong> — ${result.reason || ""}<br>${pushed}`;
+        if (result.repository) {
+          status.innerHTML += `<br><a href="${result.repository}">${result.repository}</a>`;
+        }
+        journey.textContent = result.journey || "";
+        journey.hidden = !result.journey;
+      } catch (error) {
+        status.textContent = String(error);
+      } finally {
+        button.disabled = false;
+      }
+    });
+  </script>
+</body>
+</html>

@@ -22,8 +22,9 @@ class RepairRule:
     source: str
     trusted: bool = True
 
-    def matches(self, *, package: str, failure_class: str, log: str) -> bool:
-        if self.package != package or self.error_class != failure_class:
+    def matches(self, *, package: str, failure_class: str, log: str, failure_classes: set[str] | None = None) -> bool:
+        classes = failure_classes if failure_classes is not None else {failure_class}
+        if self.package != package or self.error_class not in classes:
             return False
         haystack = log or ""
         return all(needle in haystack for needle in self.error_contains)
@@ -105,12 +106,20 @@ def load_skill_rules(directory: Path) -> list[RepairRule]:
     return rules
 
 
+def extract_skill_fences(markdown: str) -> list[str]:
+    """Every upgradeproof-repair fence in the document, in order."""
+
+    bodies: list[str] = []
+    for part in markdown.split(_FENCE)[1:]:
+        body = part.split("```", 1)[0].strip()
+        if body:
+            bodies.append(body + "\n")
+    return bodies
+
+
 def extract_skill_fence(markdown: str) -> str | None:
-    if _FENCE not in markdown:
-        return None
-    after = markdown.split(_FENCE, 1)[1]
-    body = after.split("```", 1)[0]
-    return body.strip() + "\n"
+    fences = extract_skill_fences(markdown)
+    return fences[0] if fences else None
 
 
 def render_rule_toml(rule: RepairRule) -> str:

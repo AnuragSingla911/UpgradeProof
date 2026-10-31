@@ -289,9 +289,10 @@ def investigate(prepared: PreparedCase, proposer, *, mode: str, budget: Budget |
                 "Do not modify tests. Propose a smaller behavior-preserving repair or abstain."
             )
             continue
+        no_oracle = oracle.output.startswith("no hidden oracle")
         return finish(
             "verified_repair",
-            "public tests and hidden evaluation checks passed",
+            "public tests passed" if no_oracle else "public tests and hidden evaluation checks passed",
             attempts=attempts,
             failure_class=prepared.failure_class,
             repair_source=proposal.source,
@@ -299,7 +300,7 @@ def investigate(prepared: PreparedCase, proposer, *, mode: str, budget: Budget |
             baseline_passed=True,
             upgrade_passed=True,
             public_tests_passed=True,
-            oracle_passed=True,
+            oracle_passed=None if no_oracle else True,
         )
 
     prepared.session.restore_base()
@@ -331,13 +332,16 @@ def _accept_bump(prepared: PreparedCase, finish, timeline) -> Evidence:
             oracle_passed=False,
             failure_class=classify_failure(oracle.output),
         )
+    no_oracle = oracle.output.startswith("no hidden oracle")
     return finish(
         "verified_bump",
-        "the upgraded dependency passed public tests and hidden evaluation checks with no source change",
+        "the upgraded pin passed public tests with no source change"
+        if no_oracle
+        else "the upgraded dependency passed public tests and hidden evaluation checks with no source change",
         baseline_passed=True,
         upgrade_passed=True,
         public_tests_passed=True,
-        oracle_passed=True,
+        oracle_passed=None if no_oracle else True,
         patch=prepared.session.diff(),
         repair_source="harness:version-bump",
     )

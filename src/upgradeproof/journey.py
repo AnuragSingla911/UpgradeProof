@@ -5,10 +5,10 @@ from __future__ import annotations
 from upgradeproof.model import Evidence
 
 _COMPONENTS = (
-    ("prompt", "The operator's request. Only an upgradeproof-repair fence is executable. Other sentences are kept as text."),
+    ("prompt", "The upgrade request. Repairs come from fences in the prompt or the JDK skill. Each fence covers one error class. Other sentences are not executed."),
     ("input folder", "The case: pinned Java versions, application source, public tests, and the hidden oracle."),
     ("harness", "Runs the states, enforces the attempt budget, and is the only component allowed to set the verdict."),
-    ("session", "Selects JDK 11 or JDK 21, compiles, and runs the public test or the oracle."),
+    ("session", "Selects the JDK named by the pin, compiles, and runs the public test or the oracle."),
     ("checks", "Classifies the compiler log and rejects patches that leave src/ or edit tests."),
     ("agent contract", "Requires an evidence file. A passing command is not a claim of universal compatibility."),
     ("oracle", "Checks behavior the public test does not cover. Its source is not in the workspace and is not shown to the prompt."),

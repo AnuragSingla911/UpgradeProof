@@ -81,6 +81,8 @@ class JavaSession:
         return self._java(release, classes, "PublicTest", prefix=compiled.output)
 
     def run_oracle(self) -> RunLog:
+        if not self._java_files(self.oracle_dir):
+            return RunLog(True, "no hidden oracle supplied")
         release = self._release()
         classes = self.root / "build" / "oracle"
         sources = self._java_files(self.root / "src") + self._java_files(self.oracle_dir)
@@ -88,6 +90,16 @@ class JavaSession:
         if not compiled.ok:
             return compiled
         return self._java(release, classes, "OracleTest", prefix=compiled.output)
+
+    def write_tree(self, dest: Path) -> None:
+        """Write the current project snapshot to ``dest``."""
+
+        if dest.exists():
+            shutil.rmtree(dest)
+        for relative, text in self.snapshot().items():
+            path = dest / relative
+            path.parent.mkdir(parents=True, exist_ok=True)
+            path.write_text(text, encoding="utf-8")
 
     def snapshot(self) -> dict[str, str]:
         files: dict[str, str] = {}

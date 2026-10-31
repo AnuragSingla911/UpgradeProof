@@ -1,0 +1,12 @@
+id = "java-11-to-17"
+title = "JDK 11 to 17 removes java.security.acl.Acl"
+package = "jdk"
+requirement_name = "java"
+from_version = "11"
+to_version = "17"
+timeout_seconds = 60
+project_dir = "java-11"
+oracle_dir = "oracle"
+
+[expected]
+prompt = "verified_repair"

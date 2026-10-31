@@ -32,6 +32,13 @@ class SuiteEntry:
     modes: tuple[str, ...]
 
 
+def _inside(root: Path, relative: str) -> Path:
+    candidate = (root / relative).resolve()
+    if not candidate.is_relative_to(root.resolve()):
+        raise ValueError(f"{relative} leaves the case directory")
+    return candidate
+
+
 def load_case(path: Path, *, cohort: str, modes: tuple[str, ...]) -> Case:
     data = tomllib.loads((path / "case.toml").read_text(encoding="utf-8"))
     expected = {str(key): str(value) for key, value in data.get("expected", {}).items()}
@@ -42,8 +49,8 @@ def load_case(path: Path, *, cohort: str, modes: tuple[str, ...]) -> Case:
         requirement_name=str(data.get("requirement_name", data["package"])),
         from_version=str(data["from_version"]),
         to_version=str(data["to_version"]),
-        project_dir=path / "project",
-        oracle_dir=path / "oracle",
+        project_dir=_inside(path, str(data.get("project_dir", "project"))),
+        oracle_dir=_inside(path, str(data.get("oracle_dir", "oracle"))),
         root=path,
         expected=expected,
         install_project=bool(data.get("install_project", False)),

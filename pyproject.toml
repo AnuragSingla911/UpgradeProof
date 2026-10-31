@@ -5,7 +5,7 @@ build-backend = "setuptools.build_meta"
 [project]
 name = "upgradeproof"
 version = "0.1.0"
-description = "A harness that upgrades one Python dependency and returns a tested patch with evidence."
+description = "A harness that upgrades a Java 11 app to JDK 17 and returns a tested tree with evidence."
 readme = "README.md"
 requires-python = ">=3.11"
 license = { text = "MIT" }
@@ -13,7 +13,6 @@ authors = [{ name = "UpgradeProof contributors" }]
 dependencies = []
 
 [project.optional-dependencies]
-cpu = ["llama-cpp-python"]
 dev = ["pytest==8.3.5"]
 
 [project.scripts]
