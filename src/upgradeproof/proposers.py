@@ -40,6 +40,45 @@ class SkillProposer:
         return _propose_from_rules(self.rules, request, source_prefix="skill")
 
 
+class PromptProposer:
+    """Apply only an ``upgradeproof-repair`` fence found in the operator prompt.
+
+    Prose in the prompt, including instructions to skip or delete tests, is
+    recorded by the journey report and is not executed.
+    """
+
+    def __init__(self, prompt_text: str):
+        self.prompt_text = prompt_text
+        extracted = extract_skill_fence_text(prompt_text)
+        self.rules: list[RepairRule] = []
+        self.fence_error = ""
+        if extracted is None:
+            self.fence_error = "prompt has no upgradeproof-repair fence"
+            return
+        try:
+            self.rules = [load_rule_from_prompt(extracted)]
+        except (ValueError, KeyError) as exc:
+            self.fence_error = f"prompt fence is not a repair rule: {exc}"
+
+    def propose(self, request: ProposalRequest) -> Proposal:
+        if not self.rules:
+            return Proposal.abstention("prompt", self.fence_error or "prompt has no executable repair")
+        proposal = _propose_from_rules(self.rules, request, source_prefix="prompt")
+        return proposal
+
+
+def extract_skill_fence_text(markdown: str) -> str | None:
+    from upgradeproof.knowledge import extract_skill_fence
+
+    return extract_skill_fence(markdown)
+
+
+def load_rule_from_prompt(text: str) -> RepairRule:
+    from upgradeproof.knowledge import load_rule_toml
+
+    return load_rule_toml(text, source="prompt")
+
+
 class FixedProposer:
     """Evaluation double. Not an inference backend."""
 

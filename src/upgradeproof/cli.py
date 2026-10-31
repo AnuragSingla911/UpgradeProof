@@ -9,11 +9,15 @@ import sys
 import tempfile
 from pathlib import Path
 
+from dataclasses import asdict
+
 from upgradeproof.benchmark import expectations_met, render_summary, run_benchmark
 from upgradeproof.cases import load_case
 from upgradeproof.harness import Budget, investigate, prepare_case
+from upgradeproof.java_session import JavaSession
+from upgradeproof.journey import journey_markdown
 from upgradeproof.knowledge import PromoteError, promote_skill
-from upgradeproof.proposers import CpuProposer, HostedProposer, RulesProposer, SkillProposer
+from upgradeproof.proposers import CpuProposer, HostedProposer, PromptProposer, RulesProposer, SkillProposer
 from upgradeproof.report import evidence_markdown
 from upgradeproof.session import VenvSession
 
@@ -34,6 +38,11 @@ def main(argv: list[str] | None = None) -> int:
     benchmark.add_argument("--out", type=Path, default=Path("docs"))
     benchmark.add_argument("--cpu", action="store_true", help="run the optional local GGUF model")
 
+    run_cmd = sub.add_parser("run", help="run one input folder with a prompt into an output folder")
+    run_cmd.add_argument("--input", type=Path, required=True, help="case directory, for example test-data/java-acl")
+    run_cmd.add_argument("--output", type=Path, required=True, help="directory that receives the evidence and journey")
+    run_cmd.add_argument("--prompt", type=Path, required=True, help="operator prompt; only an upgradeproof-repair fence is executable")
+
     promote = sub.add_parser("promote", help="promote a verified skill fence into a rule")
     promote.add_argument("skill", type=Path)
     promote.add_argument("--verdict", required=True)
@@ -43,6 +52,8 @@ def main(argv: list[str] | None = None) -> int:
     sub.add_parser("mcp", help="serve the bounded tool surface on stdin/stdout")
 
     args = parser.parse_args(argv)
+    if args.command == "run":
+        return _run_prompt(args)
     if args.command == "investigate":
         return _investigate(args)
     if args.command == "benchmark":
@@ -55,6 +66,50 @@ def main(argv: list[str] | None = None) -> int:
         serve(Path.cwd())
         return 0
     return 2
+
+
+def _run_prompt(args) -> int:
+    prompt_text = args.prompt.read_text(encoding="utf-8")
+    case = load_case(args.input, cohort="prompt", modes=("prompt",))
+    args.output.mkdir(parents=True, exist_ok=True)
+    with tempfile.TemporaryDirectory(prefix="upgradeproof-java-") as tmp:
+        session = JavaSession(
+            case.project_dir,
+            case.oracle_dir,
+            Path(tmp),
+            timeout=case.timeout_seconds,
+            requirement_name=case.requirement_name,
+            to_version=case.to_version,
+            from_version=case.from_version,
+        )
+        prepared = prepare_case(case, session, Budget(case_timeout_seconds=case.timeout_seconds))
+        evidence = investigate(
+            prepared,
+            PromptProposer(prompt_text),
+            mode="prompt",
+            budget=Budget(case_timeout_seconds=case.timeout_seconds),
+            expected=case.expected.get("prompt"),
+        )
+        oracle_isolated = "ORACLE_ONLY_BEHAVIOR" not in "\n".join(session.snapshot().values())
+        command_log = list(session.command_log)
+    report = evidence_markdown(evidence)
+    journey = journey_markdown(
+        evidence,
+        prompt_text=prompt_text,
+        input_dir=str(args.input),
+        output_dir=str(args.output),
+        command_log=command_log,
+        oracle_isolated=oracle_isolated,
+    )
+    (args.output / "evidence.md").write_text(report, encoding="utf-8")
+    (args.output / "journey.md").write_text(journey, encoding="utf-8")
+    (args.output / "patch.diff").write_text(evidence.patch or "", encoding="utf-8")
+    payload = asdict(evidence)
+    payload["oracle_isolated"] = oracle_isolated
+    payload["commands"] = command_log
+    (args.output / "result.json").write_text(json.dumps(payload, indent=2) + "\n", encoding="utf-8")
+    print(journey)
+    return 0 if evidence.expectation_met is not False else 1
 
 
 def _investigate(args) -> int:

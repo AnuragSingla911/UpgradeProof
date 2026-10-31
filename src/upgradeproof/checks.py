@@ -52,7 +52,7 @@ def primary_error_line(output: str) -> str:
     if pytest_errors:
         return pytest_errors[-1]
     for line in reversed(lines):
-        if re.search(r"(Error|Exception)\b", line):
+        if re.search(r"(error|exception)\b", line, re.IGNORECASE):
             return line
     return "\n".join(lines[-8:])
 
@@ -85,6 +85,9 @@ def classify_failure(output: str) -> str:
         return "assertion_failure"
     if "TypeError" in line:
         return "type_error"
+    lowered = line.lower()
+    if "cannot find symbol" in lowered or "does not exist" in lowered:
+        return "missing_symbol"
     return "unknown"
 
 
@@ -100,7 +103,7 @@ def suspect_source_files(output: str, files: dict[str, str]) -> set[str]:
     symbols = extract_symbols(output)
     found: set[str] = set()
     for path, text in files.items():
-        if not _is_application_python(path):
+        if not _is_application_source(path):
             continue
         name = path.rsplit("/", 1)[-1]
         if path in (output or "") or name in (output or ""):
@@ -111,10 +114,14 @@ def suspect_source_files(output: str, files: dict[str, str]) -> set[str]:
 
 
 def _is_application_python(path: str) -> bool:
+    return _is_application_source(path, suffixes=(".py",))
+
+
+def _is_application_source(path: str, suffixes: tuple[str, ...] = (".py", ".java")) -> bool:
     parts = Path(path).parts
     return (
         path.startswith("src/")
-        and path.endswith(".py")
+        and path.endswith(suffixes)
         and ".." not in parts
         and "tests" not in parts
         and "oracle" not in parts
@@ -173,7 +180,7 @@ def _path_reasons(path: str, *, trusted: bool, suspects: set[str]) -> list[str]:
         return reasons
     if path.endswith("requirements.txt") or path.endswith("pyproject.toml"):
         reasons.append(f"dependency metadata is owned by the harness: {path}")
-    if not _is_application_python(path):
+    if not _is_application_source(path):
         reasons.append(f"outside application source: {path}")
     elif not trusted and path not in suspects:
         reasons.append(f"outside failure scope: {path}")
