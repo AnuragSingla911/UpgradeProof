@@ -6,7 +6,7 @@ import tomllib
 from dataclasses import dataclass
 from pathlib import Path
 
-from upgradeproof.checks import _is_application_python
+from upgradeproof.checks import _is_application_source
 from upgradeproof.model import Replacement
 
 _FENCE = "```upgradeproof-repair"
@@ -55,7 +55,9 @@ def _target_paths(spec: dict[str, str], files: dict[str, str]) -> list[str]:
 
 def _glob_match(path: str, pattern: str) -> bool:
     if pattern == "src/**/*.py":
-        return _is_application_python(path)
+        return _is_application_source(path, suffixes=(".py",))
+    if pattern == "src/**/*.java":
+        return _is_application_source(path, suffixes=(".java",))
     return path == pattern
 
 

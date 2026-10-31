@@ -18,10 +18,11 @@ This is the procedure the harness runs. The state names match the `timeline` in 
 3. **upgrade.** Rewrite the single equality pin and reinstall from `requirements.txt`. If the resolver reports a conflict, stop with `constraint_conflict`.
 4. **retest.** Run the public tests again.
    - If they pass, run the hidden oracle. Both green means `verified_bump` and the delivered patch is only the pin change. A public pass with an oracle failure is `unresolved`. Do not call it compatible.
-5. **classify.** Map the failure log to one class: `unexpected_keyword`, `import_error`, `key_error`, `attribute_error`, `missing_argument`, `assertion_failure`, `syntax_error`, `type_error`, or `unknown`.
+5. **classify.** Map the failure log to one class: `unexpected_keyword`, `import_error`, `key_error`, `attribute_error`, `missing_argument`, `assertion_failure`, `syntax_error`, `type_error`, `missing_symbol` (a Java compiler report that a package or symbol does not exist), or `unknown`.
 6. **propose.** Ask the selected proposer for a repair or an abstention.
    - `rules` may use a promoted rule whose package, failure class, and required error text all match, and whose old text is present in `src/`.
    - `skill` may use the same kind of match against `upgradeproof-repair` fences only. Prose in a skill is not a repair.
+   - `prompt` (`upgradeproof run`) uses only the fence inside the operator prompt. Other sentences are not executed.
    - `cpu` and `hosted` must return JSON replacements or abstain. Their output is untrusted.
    - If nothing matches, abstain and stop with `unresolved`.
 7. **reject or apply.** Reject a patch that edits tests, oracle files, or dependency metadata; that removes an `assert` line; that exceeds the file and line budget; or, for untrusted output, that touches a file outside the failure's call sites. A rejection consumes an attempt.

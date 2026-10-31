@@ -73,10 +73,19 @@ pytest
 upgradeproof benchmark --out docs
 ```
 
-One case:
+One Python case:
 
 ```bash
 upgradeproof investigate cases/urllib3_retry --mode rules --out artifacts
+```
+
+Smallest Java experiment. JDK 11 and JDK 21 must both be installed (`openjdk-11-jdk-headless` and `openjdk-21-jdk-headless`, or `UPGRADEPROOF_JDK_11` / `UPGRADEPROOF_JDK_21`). The prompt's fence is the only executable part of the prompt. The command writes `evidence.md`, `journey.md`, `patch.diff`, and `result.json` into the output folder:
+
+```bash
+upgradeproof run \
+  --input test-data/java-acl \
+  --output artifacts/java-acl \
+  --prompt test-data/java-acl/prompt.md
 ```
 
 MCP, rooted at the current directory, with PyPI lookup off:
