@@ -1,0 +1,15 @@
+--- a/requirements.txt
++++ b/requirements.txt
+@@ -1 +1 @@
+-werkzeug==2.3.8
++werkzeug==3.0.6
+--- a/src/queryesc/encode.py
++++ b/src/queryesc/encode.py
+@@ -1,5 +1,5 @@
+-from werkzeug.urls import url_quote
++from urllib.parse import quote
+ 
+ 
+ def encode_query_value(value: str) -> str:
+-    return url_quote(value)
++    return quote(value, safe="/:!$'()*+,;")

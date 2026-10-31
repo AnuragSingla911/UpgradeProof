@@ -1,0 +1,21 @@
+--- a/requirements.txt
++++ b/requirements.txt
+@@ -1 +1 @@
+-packaging==21.3
++packaging==24.2
+--- a/src/versions/describe.py
++++ b/src/versions/describe.py
+@@ -1,8 +1,9 @@
+-from packaging.version import LegacyVersion, parse
++from packaging.version import InvalidVersion, parse
+ 
+ 
+ def describe(version: str) -> str:
+-    parsed = parse(version)
+-    if isinstance(parsed, LegacyVersion):
+-        return f"legacy:{parsed}"
++    try:
++        parsed = parse(version)
++    except InvalidVersion:
++        return f"legacy:{version}"
+     return f"pep440:{parsed}"

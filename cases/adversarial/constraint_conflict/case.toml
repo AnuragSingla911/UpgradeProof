@@ -1,0 +1,10 @@
+id = "constraint-conflict"
+title = "Another local requirement forbids urllib3 2"
+package = "urllib3"
+requirement_name = "urllib3"
+from_version = "1.26.20"
+to_version = "2.2.3"
+timeout_seconds = 180
+
+[expected]
+rules = "constraint_conflict"

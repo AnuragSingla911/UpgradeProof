@@ -1,0 +1,11 @@
+id = "itsdangerous-serializer"
+title = "itsdangerous 2 removes TimedJSONWebSignatureSerializer"
+package = "itsdangerous"
+requirement_name = "itsdangerous"
+from_version = "1.1.0"
+to_version = "2.2.0"
+timeout_seconds = 180
+
+[expected]
+rules = "verified_repair"
+skill = "verified_repair"

@@ -1,0 +1,52 @@
+# urllib3-gateway (promotion-first)
+
+**Verdict:** verified_repair
+
+public tests and hidden evaluation checks passed
+
+Passing tests are evidence only for the behaviors those tests execute. They do not prove the project is compatible with the new dependency in every environment.
+
+## Run
+
+- Title: Same urllib3 break in a second module
+- Failure class: unexpected_keyword
+- Repair source: model:scripted-first-encounter
+- Attempts: 1
+- Model calls: 1
+- Estimated cost (USD): 0.0000
+- Wall clock, including shared setup (seconds): 4.830
+- Baseline passed: yes
+- Upgrade install passed: yes
+- Public tests passed: yes
+- Oracle passed: yes
+
+## Patch rejections
+
+- none
+
+## Delivered patch
+
+```diff
+--- a/requirements.txt
++++ b/requirements.txt
+@@ -1 +1 @@
+-urllib3==1.26.20
++urllib3==2.2.3
+--- a/src/retryctx/gateway.py
++++ b/src/retryctx/gateway.py
+@@ -2,4 +2,4 @@
+ 
+ 
+ def build_gateway_retry() -> Retry:
+-    return Retry(total=3, method_whitelist=["GET", "HEAD"], status_forcelist=[503])
++    return Retry(total=3, allowed_methods=["GET", "HEAD"], status_forcelist=[503])
+```
+
+## Timeline
+
+- `baseline` {'ok': True, 'timed_out': False}
+- `upgrade` {'ok': True, 'timed_out': False}
+- `retest` {'ok': False, 'failure_class': 'unexpected_keyword'}
+- `propose` {'attempt': 1, 'source': 'model:scripted-first-encounter', 'abstain': False, 'model_call': True}
+- `apply` {'attempt': 1, 'ok': True}
+- `oracle` {'attempt': 1, 'ok': True}
