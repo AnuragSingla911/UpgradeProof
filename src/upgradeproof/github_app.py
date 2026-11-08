@@ -35,7 +35,14 @@ def find_java11_project(clone: Path) -> Path:
     raise ValueError("repository has no java-11 application (requirements.txt and src/)")
 
 
-def upgrade_repository(url: str, prompt: str, *, push: bool = True, work_dir: Path | None = None) -> dict:
+def upgrade_repository(
+    url: str,
+    prompt: str,
+    *,
+    push: bool = True,
+    work_dir: Path | None = None,
+    skills_dir: Path | None = None,
+) -> dict:
     """Clone ``url``, upgrade its Java 11 app to 17, and optionally push ``java-17/``."""
 
     owner, repo = parse_github_url(url)
@@ -44,13 +51,26 @@ def upgrade_repository(url: str, prompt: str, *, push: bool = True, work_dir: Pa
     clone = root / "repo"
     try:
         _git(["clone", "--depth", "1", f"https://github.com/{owner}/{repo}.git", str(clone)])
-        return upgrade_checkout(clone, prompt, push=push, page_url=f"https://github.com/{owner}/{repo}")
+        return upgrade_checkout(
+            clone,
+            prompt,
+            push=push,
+            page_url=f"https://github.com/{owner}/{repo}",
+            skills_dir=skills_dir,
+        )
     finally:
         if cleanup and root.exists():
             shutil.rmtree(root, ignore_errors=True)
 
 
-def upgrade_checkout(clone: Path, prompt: str, *, push: bool, page_url: str) -> dict:
+def upgrade_checkout(
+    clone: Path,
+    prompt: str,
+    *,
+    push: bool,
+    page_url: str,
+    skills_dir: Path | None = None,
+) -> dict:
     project = find_java11_project(clone)
     case = Case(
         id=clone.name,
@@ -81,7 +101,7 @@ def upgrade_checkout(clone: Path, prompt: str, *, push: bool, page_url: str) -> 
         prepared = prepare_case(case, session, Budget(case_timeout_seconds=case.timeout_seconds))
         evidence = investigate(
             prepared,
-            PromptProposer(prompt),
+            PromptProposer(prompt, skills_dir=skills_dir),
             mode="prompt",
             budget=Budget(case_timeout_seconds=case.timeout_seconds),
         )

@@ -13,6 +13,7 @@ import pytest
 from upgradeproof.checks import classify_failure, failure_classes, validate_replacements
 from upgradeproof.cli import main
 from upgradeproof.github_app import find_java11_project, parse_github_url, upgrade_checkout
+from upgradeproof.proposers import resolve_skills_dir
 from upgradeproof.model import ProposalRequest, Replacement
 from upgradeproof.proposers import PromptProposer
 
@@ -33,6 +34,12 @@ def _jdk_home(version: str) -> Path | None:
         if (home / "bin" / "javac").is_file() and (home / "bin" / "java").is_file():
             return home
     return None
+
+
+def test_skills_dir_found_even_when_cwd_elsewhere(tmp_path: Path, monkeypatch: pytest.MonkeyPatch):
+    monkeypatch.chdir(tmp_path)
+    sd = resolve_skills_dir()
+    assert (sd / "jdk" / "SKILL.md").is_file()
 
 
 def test_github_url_and_java11_layout(tmp_path: Path):

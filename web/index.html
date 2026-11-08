@@ -35,6 +35,20 @@
     <pre id="journey" hidden></pre>
   </main>
   <script>
+    /** Base URL for POST /api/upgrade. Empty = same origin (any port) when served by `upgradeproof chat`. */
+    function upgradeproofApiBase() {
+      let base = "{{API_BASE}}";
+      if (base === "{{API_BASE}}") {
+        if (window.location.protocol === "file:") {
+          base = "http://127.0.0.1:8765";
+        } else {
+          base = "http://127.0.0.1:8765";
+        }
+      } else {
+        base = base || "";
+      }
+      return base;
+    }
     const form = document.querySelector("#upgrade");
     const status = document.querySelector("#status");
     const journey = document.querySelector("#journey");
@@ -44,8 +58,10 @@
       button.disabled = true;
       journey.hidden = true;
       status.textContent = "Cloning, compiling on JDK 11, then JDK 17…";
+      const base = upgradeproofApiBase();
+      const url = `${base}/api/upgrade`;
       try {
-        const response = await fetch("/api/upgrade", {
+        const response = await fetch(url, {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({
@@ -54,7 +70,14 @@
             push: true
           })
         });
-        const result = await response.json();
+        const text = await response.text();
+        let result;
+        try {
+          result = text ? JSON.parse(text) : {};
+        } catch {
+          status.textContent = `Could not read API response (${response.status} from ${url}). First line: ${text.split("\n")[0].slice(0, 200)}`;
+          return;
+        }
         const pushed = result.pushed ? "Pushed java-17/ to the repository." : (result.publish_error || "Nothing was pushed.");
         status.innerHTML = `<strong>${result.verdict || "unresolved"}</strong> — ${result.reason || ""}<br>${pushed}`;
         if (result.repository) {
@@ -63,7 +86,7 @@
         journey.textContent = result.journey || "";
         journey.hidden = !result.journey;
       } catch (error) {
-        status.textContent = String(error);
+        status.textContent = `${String(error)} (POST ${url} — is \`upgradeproof chat\` running on port 8765?)`;
       } finally {
         button.disabled = false;
       }

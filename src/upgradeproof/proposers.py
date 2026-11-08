@@ -2,13 +2,35 @@
 
 from __future__ import annotations
 
+import os
 from pathlib import Path
 
 from upgradeproof.checks import failure_classes
 from upgradeproof.knowledge import RepairRule, extract_skill_fences, load_rule_toml
 from upgradeproof.model import Proposal, ProposalRequest, Replacement
 
-_SKILLS = Path(__file__).resolve().parents[2] / "skills"
+
+def resolve_skills_dir(explicit: Path | None = None) -> Path:
+    """Directory containing ``jdk/SKILL.md`` and other package skills.
+
+    Cloned-repo and temp-directory runs do not have ``skills`` next to the cwd,
+    so we resolve from this package's install layout, ``UPGRADEPROOF_SKILLS``,
+    or the current working directory.
+    """
+
+    if explicit is not None:
+        return explicit
+    env = os.environ.get("UPGRADEPROOF_SKILLS")
+    if env:
+        return Path(env).resolve()
+    here = Path(__file__).resolve()
+    alongside = here.parents[2] / "skills"
+    if (alongside / "jdk" / "SKILL.md").is_file():
+        return alongside
+    cwd_skills = Path.cwd() / "skills"
+    if (cwd_skills / "jdk" / "SKILL.md").is_file():
+        return cwd_skills
+    return alongside
 
 
 class PromptProposer:
@@ -23,7 +45,7 @@ class PromptProposer:
         self.rules: list[RepairRule] = []
         self.fence_error = ""
         self.rules.extend(_rules_from(prompt_text, source="prompt"))
-        root = skills_dir if skills_dir is not None else _SKILLS
+        root = resolve_skills_dir(skills_dir)
         if root.is_dir():
             for path in sorted(root.glob("*/SKILL.md")):
                 self.rules.extend(_rules_from(path.read_text(encoding="utf-8"), source="skill"))

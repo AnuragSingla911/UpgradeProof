@@ -25,7 +25,7 @@ def journey_markdown(
     command_log: list[str],
     oracle_isolated: bool,
 ) -> str:
-    fence = "upgradeproof-repair" in prompt_text
+    fence_in_prompt = "```upgradeproof-repair" in prompt_text
     delete_tests = "delete the tests" in prompt_text.lower()
     lines = [
         f"# Journey: {evidence.case_id}",
@@ -40,7 +40,7 @@ def journey_markdown(
         "",
         f"- Input folder: `{input_dir}`",
         f"- Output folder: `{output_dir}`",
-        f"- Prompt contained an executable fence: {'yes' if fence else 'no'}",
+        f"- Prompt contained upgradeproof-repair fences: {'yes' if fence_in_prompt else 'no'}",
         f"- Baseline passed: {_yn(evidence.baseline_passed)}",
         f"- Upgrade install or pin change passed: {_yn(evidence.upgrade_passed)}",
         f"- Failure class: {evidence.failure_class or 'n/a'}",
@@ -52,7 +52,7 @@ def journey_markdown(
         f"- Oracle stayed outside the workspace: {'yes' if oracle_isolated else 'no'}",
         f"- Delivered patch: {'yes' if evidence.patch else 'no'}",
         "",
-        "The harness validates itself by requiring the baseline to pass on the old JDK, the upgrade to reproduce a failure, and both the public test and the oracle to pass after the prompt's fence is applied. The prompt does not get to mark the run successful.",
+        _validation_summary(evidence, fence_in_prompt),
         "",
         "## Component roles",
         "",
@@ -83,6 +83,26 @@ def journey_markdown(
         lines.append(f"- `{state}` {detail}")
     lines.append("")
     return "\n".join(lines)
+
+
+def _validation_summary(evidence: Evidence, fence_in_prompt: bool) -> str:
+    parts = [
+        "The harness requires the baseline to pass on the old JDK, the pin change to succeed, and the failure to be reproduced before any repair.",
+    ]
+    if evidence.oracle_passed is None:
+        parts.append("With no oracle on disk, verification ends when public tests pass after a repair or bump.")
+    else:
+        parts.append("When an oracle is supplied, it must pass after public tests pass.")
+    if evidence.repair_source and evidence.repair_source.startswith("prompt:"):
+        parts.append("Repairs came from a fence in the prompt text.")
+    elif evidence.repair_source and "skill:" in evidence.repair_source:
+        parts.append("Repairs came from the bundled skills (see `repair_source` in result.json).")
+    elif evidence.repair_source == "harness:version-bump":
+        parts.append("No source repair was needed beyond the pin change.")
+    if fence_in_prompt and evidence.repair_source and evidence.repair_source.startswith("skill:"):
+        parts.append("The prompt stated the upgrade; executable fences in the prompt were optional.")
+    parts.append("The prompt does not get to mark the run successful.")
+    return " ".join(parts)
 
 
 def _yn(value: bool | None) -> str:

@@ -17,15 +17,34 @@ def serve(host: str = "127.0.0.1", port: int = 8765) -> None:
     _default_jdks()
     page = _PAGE.read_text(encoding="utf-8")
     prompt = (Path(__file__).resolve().parents[2] / "test-data" / "chat-prompt.md").read_text(encoding="utf-8")
-    page = page.replace("{{REPO_URL}}", _DEFAULT_URL).replace("{{PROMPT}}", _escape(prompt))
+    page = (
+        page.replace("{{REPO_URL}}", _DEFAULT_URL)
+        .replace("{{PROMPT}}", _escape(prompt))
+        .replace("{{API_BASE}}", "")
+    )
 
     class Handler(BaseHTTPRequestHandler):
+        def _cors(self) -> None:
+            # Lets the page work when opened from another local dev server (non-8765).
+            self.send_header("Access-Control-Allow-Origin", "*")
+            self.send_header("Access-Control-Allow-Methods", "GET, POST, OPTIONS")
+            self.send_header("Access-Control-Allow-Headers", "Content-Type")
+
+        def do_OPTIONS(self) -> None:  # noqa: N802
+            if self.path in ("/", "/index.html", "/api/upgrade"):
+                self.send_response(204)
+                self._cors()
+                self.end_headers()
+            else:
+                self.send_error(404)
+
         def do_GET(self) -> None:  # noqa: N802
             if self.path not in ("/", "/index.html"):
                 self.send_error(404)
                 return
             body = page.encode("utf-8")
             self.send_response(200)
+            self._cors()
             self.send_header("Content-Type", "text/html; charset=utf-8")
             self.send_header("Content-Length", str(len(body)))
             self.end_headers()
@@ -49,6 +68,7 @@ def serve(host: str = "127.0.0.1", port: int = 8765) -> None:
                 status = 400
             payload = json.dumps(result).encode("utf-8")
             self.send_response(status)
+            self._cors()
             self.send_header("Content-Type", "application/json")
             self.send_header("Content-Length", str(len(payload)))
             self.end_headers()
