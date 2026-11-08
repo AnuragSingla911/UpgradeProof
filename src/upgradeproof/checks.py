@@ -85,10 +85,56 @@ def classify_failure(output: str) -> str:
         return "assertion_failure"
     if "TypeError" in line:
         return "type_error"
+    kind = _class_of_line(line)
+    return kind or "unknown"
+
+
+def failure_classes(output: str) -> list[str]:
+    """Every distinct failure class present in a compiler or test log."""
+
+    found: list[str] = []
+    for line in (output or "").splitlines():
+        kind = _class_of_line(line)
+        if kind and kind not in found:
+            found.append(kind)
+    if not found:
+        primary = classify_failure(output)
+        if primary not in {"unknown", "constraint_conflict"}:
+            found.append(primary)
+    return found
+
+
+def _class_of_line(line: str) -> str | None:
     lowered = line.lower()
+    if "syntaxerror" in lowered or "';' expected" in lowered or "reached end of file while parsing" in lowered:
+        return "syntax_error"
+    if "unexpected keyword argument" in lowered:
+        return "unexpected_keyword"
+    if "required positional argument" in lowered:
+        return "missing_argument"
+    if "importerror" in lowered or "modulenotfounderror" in lowered or "cannot import name" in lowered:
+        return "import_error"
+    if "attributeerror" in lowered:
+        return "attribute_error"
+    if "keyerror" in lowered:
+        return "key_error"
+    if "assertionerror" in lowered:
+        return "assertion_failure"
+    if "typeerror" in lowered and "incompatible types" not in lowered:
+        return "type_error"
     if "cannot find symbol" in lowered or "does not exist" in lowered:
         return "missing_symbol"
-    return "unknown"
+    if "incompatible types" in lowered:
+        return "incompatible_types"
+    if "no suitable method found" in lowered or "cannot be applied to given types" in lowered or "method does not override" in lowered:
+        return "incompatible_signature"
+    if "is not visible" in lowered or "cannot be accessed" in lowered or "has private access" in lowered:
+        return "inaccessible"
+    if "unreported exception" in lowered:
+        return "exception_check"
+    if "is ambiguous" in lowered:
+        return "ambiguous"
+    return None
 
 
 def extract_symbols(output: str) -> list[str]:

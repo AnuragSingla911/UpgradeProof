@@ -1,4 +1,4 @@
-"""Load benchmark case manifests."""
+"""Load a Java upgrade case manifest from ``case.toml``."""
 
 from __future__ import annotations
 
@@ -25,11 +25,11 @@ class Case:
     modes: tuple[str, ...]
 
 
-@dataclass(frozen=True)
-class SuiteEntry:
-    case: Case
-    cohort: str
-    modes: tuple[str, ...]
+def _inside(root: Path, relative: str) -> Path:
+    candidate = (root / relative).resolve()
+    if not candidate.is_relative_to(root.resolve()):
+        raise ValueError(f"{relative} leaves the case directory")
+    return candidate
 
 
 def load_case(path: Path, *, cohort: str, modes: tuple[str, ...]) -> Case:
@@ -42,8 +42,8 @@ def load_case(path: Path, *, cohort: str, modes: tuple[str, ...]) -> Case:
         requirement_name=str(data.get("requirement_name", data["package"])),
         from_version=str(data["from_version"]),
         to_version=str(data["to_version"]),
-        project_dir=path / "project",
-        oracle_dir=path / "oracle",
+        project_dir=_inside(path, str(data.get("project_dir", "project"))),
+        oracle_dir=_inside(path, str(data.get("oracle_dir", "oracle"))),
         root=path,
         expected=expected,
         install_project=bool(data.get("install_project", False)),
@@ -51,13 +51,3 @@ def load_case(path: Path, *, cohort: str, modes: tuple[str, ...]) -> Case:
         cohort=cohort,
         modes=modes,
     )
-
-
-def load_suite(repo_root: Path) -> list[Case]:
-    manifest = tomllib.loads((repo_root / "cases" / "suite.toml").read_text(encoding="utf-8"))
-    cases: list[Case] = []
-    for entry in manifest.get("case", []):
-        modes = tuple(str(mode) for mode in entry["modes"])
-        cohort = str(entry["cohort"])
-        cases.append(load_case(repo_root / "cases" / entry["path"], cohort=cohort, modes=modes))
-    return cases

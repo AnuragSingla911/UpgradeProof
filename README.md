@@ -1,122 +1,123 @@
 # UpgradeProof
 
-UpgradeProof asks one question of a small Python project:
+[UpgradeProof](https://github.com/AnuragSingla911/UpgradeProof) is a small harness that answers one question for a **Java 11** application: can it move to **JDK 17** with evidence?
 
-**Can this project upgrade dependency X from version A to version B? If that breaks the tests, what is the smallest change that still behaves the way the tests require?**
+It clones or loads the app, runs public tests on JDK 11, bumps the `java==11` pin to `java==17`, classifies compiler failures, applies trusted repair fences from **skills** (and optionally from the prompt), reruns tests and optional hidden oracles, and writes **`java-17/`**, **`journey.md`**, and **`evidence.md`** when the verdict is verified.
 
-It is a feasibility bench for harness engineering, not a general dependency bot. The interesting part is not opening a version-bump pull request. It is the line between a one-off repair and a repair that has become a checked, reusable rule.
+The **harness** sets the verdict. The **prompt** states the upgrade goal. Each known break is a separate `upgradeproof-repair` fence in [`skills/jdk/SKILL.md`](skills/jdk/SKILL.md), tagged with an **error class**. A failure with no matching fence stays **`unresolved`**.
 
-## What a run does
+| Doc | Role |
+| --- | --- |
+| [`workflow.md`](workflow.md) | Procedure the harness runs (baseline → upgrade → classify → propose → oracle) |
+| [`agent.md`](agent.md) | What an investigator may change and what it must not do |
+| [`skills/jdk/SKILL.md`](skills/jdk/SKILL.md) | JDK skill: one fence per known break (today: `missing_symbol` for removed `java.security.acl`) |
 
-1. Run the project's public tests on the pinned dependency.
-2. Change only that pin and reinstall.
-3. Classify a failure with deterministic checks.
-4. Apply a promoted rule or a skill fence when its preconditions hold. Otherwise abstain. A model is used only if you explicitly select `cpu` or `hosted`.
-5. Reject patches that edit tests, delete assertions, or wander outside the failure.
-6. Re-run the public tests, then hidden oracle tests that the repair step cannot read.
-7. Write a patch and an evidence report, or an explicit unresolved result.
+**Sample target repository:** [Java11to17UpgradeSample](https://github.com/AnuragSingla911/Java11to17UpgradeSample) — layout `java-11/` (passing on 11), optional `java-17/` after a verified run.
 
-Passing tests are evidence for the behaviors those tests execute. They are not proof of universal compatibility.
+## Repository layout
 
-## Why these cases
+| Path | Purpose |
+| --- | --- |
+| `src/upgradeproof/` | Harness, JDK session, GitHub clone/push, local chat server |
+| `skills/` | Package skills (`jdk/SKILL.md`, …) loaded by `PromptProposer` |
+| `test-data/` | Local JDK 11→17 case (`java-11/`, oracle, `prompt.md`, `case.toml`) |
+| `web/index.html` | Chat UI served by `upgradeproof chat` |
+| `cases/`, `docs/`, `rules/` | Earlier Python dependency benchmark artifacts (not used by the Java CLI path) |
 
-The fixtures are small programs written for this repository. Each one pins a real package, upgrades it, and breaks on a documented change:
+**CI:** [`.github/workflows/test.yml`](.github/workflows/test.yml) installs JDK 11 and 17 on Ubuntu and runs `pytest`.
 
-| Case | Upgrade | Break |
-|---|---|---|
-| `urllib3-retry` | 1.26.20 → 2.2.3 | `Retry(method_whitelist=...)` was removed |
-| `werkzeug-url-quote` | 2.3.8 → 3.0.6 | `werkzeug.urls.url_quote` was removed |
-| `importlib-entry-points` | 4.13.0 → 8.5.0 | `entry_points()[group]` no longer selects a group |
-| `itsdangerous-serializer` | 1.1.0 → 2.2.0 | `TimedJSONWebSignatureSerializer` was removed |
-| `packaging-legacy-version` | 21.3 → 24.2 | `LegacyVersion` was removed |
+## Requirements
 
-A sixth package, MarkupSafe `soft_unicode`, is an **uncovered** probe: the skill is prose only, so both modes must abstain. Adversarial cases cover an already-failing baseline, a clean version bump, and a dependency conflict. Guard checks cover a deleted assertion, a test edit, an unrelated edit, an invented API, an oracle miss, a retry limit, and abstention.
+- **Python** ≥ 3.11 (3.12 recommended)
+- **JDK 11** and **JDK 17** on the machine running the harness
 
-The promoted rules were written with these fixtures. Treat the verified rate as evidence that the harness can reuse a checked repair, not as a prediction about other repositories. Newly authored cases avoid presenting the bench as free of training-data contamination; they do not make it contamination-free if a model has seen the upstream changelogs.
-
-## Harness map
-
-| Piece | Responsibility |
-|---|---|
-| [`workflow.md`](workflow.md) | Investigation procedure, bounds, and stop conditions |
-| [`agent.md`](agent.md) | Investigator role and evidence requirement |
-| [`skills/`](skills/) | Migration knowledge. Only an `upgradeproof-repair` fence is executable |
-| [`rules.md`](rules.md) | Allowed edits and what a reviewer should believe |
-| [`rules/promoted/`](rules/promoted/) | Fences accepted for reuse with no model |
-| `src/upgradeproof/checks.py` | Pin parsing, failure classes, diff rejection |
-| `src/upgradeproof/harness.py` | State machine, attempts, timeouts, verdicts |
-| `src/upgradeproof/mcp_server.py` | The same operations behind a small MCP tool list |
-| `src/upgradeproof/benchmark.py` | Verified repairs, abstentions, time, model calls, cost |
-
-Rules mode and skill mode are both zero-cost. They exist so a reader can see the same repair as a document and as a promoted rule. Promotion is `upgradeproof promote <skill> --verdict verified_repair --rules-dir ... --accept`. Without `--accept`, or without a verified verdict, nothing is written.
-
-## Modes and cost
-
-| Mode | What runs | Spend |
-|---|---|---|
-| `rules` (default) | Promoted rules | None |
-| `skill` | Skill fences only. Prose is ignored | None |
-| `cpu` | A local GGUF via `llama-cpp-python`, if `UPGRADEPROOF_GGUF` points at a file | None, and it can fail |
-| `hosted` | An OpenAI-compatible chat endpoint | Only when base URL, API key, and model are all set. No automatic fallback |
-
-GitHub Models, including its inference API, has been retired, so this project does not depend on it. See [GitHub Models](https://docs.github.com/en/github-models).
-
-Hosted cost is `model_calls * UPGRADEPROOF_PRICE_PER_CALL` when that variable is a number you set. The bench does not invent a price.
-
-CPU inference is optional because a small model may not emit a valid repair. The default bench records the CPU arm as not run until you pass `--cpu` with a model file. Start there before describing CPU inference as a useful free repair experience.
-
-## Run
+On macOS (Homebrew):
 
 ```bash
+brew install openjdk@11 openjdk@17
+```
+
+On Ubuntu (as in CI): `openjdk-11-jdk-headless`, `openjdk-17-jdk-headless`.
+
+## Install
+
+```bash
+git clone https://github.com/AnuragSingla911/UpgradeProof.git
+cd UpgradeProof
+python3.12 -m venv .venv
+source .venv/bin/activate
 python -m pip install -e ".[dev]"
-pytest
-upgradeproof benchmark --out docs
 ```
 
-One Python case:
+### Environment variables
+
+| Variable | Purpose |
+| --- | --- |
+| `UPGRADEPROOF_JDK_11` | JDK 11 home (directory containing `bin/javac`) |
+| `UPGRADEPROOF_JDK_17` | JDK 17 home |
+| `UPGRADEPROOF_SKILLS` | Optional path to this repo’s `skills/` when the harness runs from a temp clone (chat/GitHub flow resolves skills from the installed package by default) |
+
+Example (macOS):
 
 ```bash
-upgradeproof investigate cases/urllib3_retry --mode rules --out artifacts
+export UPGRADEPROOF_JDK_11="$(brew --prefix openjdk@11)"
+export UPGRADEPROOF_JDK_17="$(brew --prefix openjdk@17)"
 ```
 
-Smallest Java experiment. JDK 11 and JDK 21 must both be installed (`openjdk-11-jdk-headless` and `openjdk-21-jdk-headless`, or `UPGRADEPROOF_JDK_11` / `UPGRADEPROOF_JDK_21`). The prompt's fence is the only executable part of the prompt. The command writes `evidence.md`, `journey.md`, `patch.diff`, and `result.json` into the output folder:
+`upgradeproof chat` also probes common Homebrew paths if these are unset.
+
+## Commands
+
+### `upgradeproof chat` — GitHub URL in the browser
+
+Starts a local server (default **http://127.0.0.1:8765**) with a form: public GitHub URL + upgrade prompt. **POST `/api/upgrade`** clones the repo, runs the harness, and (on a verified repair) can commit and push `java-17/`, `journey.md`, and `evidence.md`.
+
+```bash
+upgradeproof chat
+# custom bind: upgradeproof chat --host 127.0.0.1 --port 9000
+```
+
+Open the URL printed in the terminal so the page calls the same-origin API. If you open `web/index.html` as `file://`, the script falls back to `http://127.0.0.1:8765` (default chat port). Use `--port` when **8765** is already taken.
+
+**Push** needs `git` credentials for the target repo (HTTPS token or SSH). Failures appear as `publish_error` in the JSON response; the local upgrade can still succeed with `pushed: false`.
+
+**Expected repository shape:**
+
+- `java-11/requirements.txt` with `java==11` and `java-11/src/`, `java-11/tests/`, or the same layout at repo root.
+
+Default form fields use [Java11to17UpgradeSample](https://github.com/AnuragSingla911/Java11to17UpgradeSample) and [`test-data/chat-prompt.md`](test-data/chat-prompt.md).
+
+### `upgradeproof run` — local folder
+
+Runs one case from a directory containing `case.toml` and `java-11/` (see [`test-data/`](test-data/README.md)).
 
 ```bash
 upgradeproof run \
-  --input test-data/java-acl \
-  --output artifacts/java-acl \
-  --prompt test-data/java-acl/prompt.md
+  --input test-data \
+  --output artifacts/java-11-to-17 \
+  --prompt test-data/prompt.md
 ```
 
-MCP, rooted at the current directory, with PyPI lookup off:
+Writes `evidence.md`, `journey.md`, `patch.diff`, and `result.json` under `--output`. Exit code **0** when the verdict is `verified_repair` or `verified_bump`.
+
+## Verdicts (summary)
+
+- **`verified_bump`** — public tests pass after the pin change alone.
+- **`verified_repair`** — tests pass after applying a trusted fence (skill or prompt).
+- **`unresolved`** — timeout, no fence for the failure class, patch rejected, tests still failing, etc.
+- **`invalid_baseline`** — `java-11` public tests fail before upgrade.
+- **`constraint_conflict`** — reserved for dependency resolver conflicts (Python bench); not used for the Java pin flow.
+
+Details: [`workflow.md`](workflow.md).
+
+## Tests
 
 ```bash
-upgradeproof mcp
+pytest
 ```
 
-The tools are `list_dependencies`, `classify_failure`, `validate_diff`, `read_file`, `search_code`, `package_metadata`, and `run_tests`. `run_tests` always runs `tests/` inside the workspace. Paths that leave the workspace are refused. That check is not an operating-system sandbox. The GitHub Actions job that runs this suite requests `contents: read` so it can check out the repo and `actions: write` so it can upload the results artifact. It has no secret and it does not push.
+[`tests/test_java_prompt.py`](tests/test_java_prompt.py) covers URL parsing, skills resolution when `cwd` is not the repo, failure classes, proposer behavior, `run`, and `upgrade_checkout` when JDKs are available.
 
-[GitHub Actions billing](https://docs.github.com/en/billing/concepts/product-billing/github-actions): standard hosted runners are free for public repositories; larger runners are billed. This workflow uses `ubuntu-latest` and keeps the artifact to the JSON, the summary, and the evidence files.
+## License
 
-GitHub Pages can serve `docs/` as a static dashboard. The page reads `docs/results.js` produced by the benchmark. It does not run investigations. See [About GitHub Pages](https://docs.github.com/en/pages/getting-started-with-github-pages/about-github-pages).
-
-## Results
-
-The numbers below are filled in from `docs/results.json` after a local bench run. Row times include environment setup and are not additive across modes. `elapsed_seconds` is the real stopwatch.
-
-<!-- RESULTS -->
-Local bench on 31 Oct 2026, 1:42pm Asia/Calcutta, Python 3.12, elapsed **54.4s**. Every expectation in the suite was met. No delivered patch failed its oracle (`0` regressions). Model calls on the rules and skill arms were `0`, and estimated cost was `$0`.
-
-| Cohort | Expectations | Verified verdicts | Model calls | Cost per verified repair |
-|---|---:|---:|---:|---:|
-| Repair, rules | 5/5 | 5/5 | 0 | $0 |
-| Repair, skill fences | 5/5 | 5/5 | 0 | $0 |
-| Uncovered MarkupSafe | 1/1 abstained | 0/1 | 0 | n/a |
-| Adversarial baselines | 3/3 | 1/3 (the clean bump only) | 0 | $0 |
-
-The uncovered case is supposed to stay unresolved: its skill has no executable fence. The adversarial cases are supposed to report `invalid_baseline`, `verified_bump`, and `constraint_conflict`. Two execution probes on real installs also held: an invented urllib3 keyword failed the public tests and was not delivered, and a packaging edit that passed the public test but dropped legacy-version behavior failed the oracle and was not delivered.
-
-Promotion, on the second urllib3 fixture: a scripted first-encounter proposal (not a neural model) verified in one model call, the skill fence was accepted, and the restored project was then repaired by that promoted rule with **zero** model calls.
-
-The CPU arm did not run. `llama-cpp-python` has no prebuilt wheel for this interpreter, so the bench records `unavailable` instead of a made-up score. Set `UPGRADEPROOF_GGUF` and install the `cpu` extra before treating a small model as a repair engine.
-<!-- /RESULTS -->
+MIT — see [`LICENSE`](LICENSE).

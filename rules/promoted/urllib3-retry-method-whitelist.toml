@@ -1,9 +1,0 @@
-id = "urllib3-retry-method-whitelist"
-package = "urllib3"
-error_class = "unexpected_keyword"
-error_contains = ["method_whitelist"]
-
-[[replacements]]
-path_glob = "src/**/*.py"
-old = '''method_whitelist='''
-new = '''allowed_methods='''

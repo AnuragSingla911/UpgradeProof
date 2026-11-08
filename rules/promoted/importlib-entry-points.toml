@@ -1,9 +1,0 @@
-id = "importlib-entry-points"
-package = "importlib_metadata"
-error_class = "key_error"
-error_contains = ["upgradeproof.plugins"]
-
-[[replacements]]
-path_glob = "src/**/*.py"
-old = '''entry_points()["upgradeproof.plugins"]'''
-new = '''entry_points(group="upgradeproof.plugins")'''
